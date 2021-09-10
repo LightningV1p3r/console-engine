@@ -1,3 +1,12 @@
+echo __     ___      _____        _____             _            
+echo \ \   / / |_ __|___ / _ __  | ____|_ __   __ _(_)_ __   ___ 
+echo  \ \ / /| | '_ \ |_ \| '__| |  _| | '_ \ / _` | | '_ \ / _ \
+echo   \ V / | | |_) |__) | |    | |___| | | | (_| | | | | |  __/
+echo    \_/  |_| .__/____/|_|    |_____|_| |_|\__, |_|_| |_|\___|
+echo           |_|                            |___/              
+
+
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
