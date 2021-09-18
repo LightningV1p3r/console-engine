@@ -1,2 +1,5 @@
 tests/
 env/
+build/
+dist/
+cengine.egg-info/
