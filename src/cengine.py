@@ -82,31 +82,43 @@ class Lexer:
         self.advance()
 
 
-    def advance(self, iterations) -> None:
+    def advance(self, iterations=1) -> None:
 
         """Advances the cursor by one char in the input."""
 
-        self.pos += 1
+        iter_count = 0
 
-        if self.pos < len(self.text):
-            self.current_char = self.text[self.pos]
-            lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
-        else:
-            self.current_char = None
+        while iter_count < iterations:
 
+            self.pos += 1
+
+            if self.pos < len(self.text):
+                self.current_char = self.text[self.pos]
+                lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
+            else:
+                self.current_char = None
+
+            iter_count += 1
+     
         
-    def reverse(self, iterations) -> None:
+    def reverse(self, iterations=1) -> None:
          
         """Reverses the cursor by one char in the input."""
 
-        self.pos -= 1
+        iter_count = 0
 
-        if self.pos < 0:
-            self.pos += 1
-            lexer_logger.error('Failed to reverse pos due to invalid index!')
-        else:
-            self.current_char = self.text[self.pos]
-            lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
+        while iter_count < iterations:
+
+            self.pos -= 1
+
+            if self.pos < 0:
+                self.pos += 1
+                lexer_logger.error('Failed to reverse pos due to invalid index!')
+            else:
+                self.current_char = self.text[self.pos]
+                lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
+
+            iter_count += 1
 
 
     def tokenize(self) -> list:
@@ -124,15 +136,12 @@ class Lexer:
             elif self.current_char in DIGITS:
                 tokens.append(self.make_number())
             elif self.current_char == '-':
-                self.advance()
-                self.advance()
+                self.advance(2)
                 if self.current_char in ' \t':
                     self.reverse()
-                    self.reverse()
-                    self.make_flag()
+                    tokens.append(self.make_flag())
                 else:
-                    self.reverse()
-                    self.reverse()
+                    self.reverse(2)
                     tokens.append(Token(TT_MINUS))
                     self.advance()
             elif self.current_char == '+':
@@ -199,3 +208,13 @@ class Lexer:
     def make_flag(self) -> Token:
         
         """Generates Token of Type Flag."""
+
+        flag = ''
+
+        while self.current_char != None and self.current_char in LETTERS:
+
+            flag += self.current_char
+            self.advance()
+
+        lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
+        return Token(TT_FlAG, flag)
