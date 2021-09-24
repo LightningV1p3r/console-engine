@@ -41,6 +41,7 @@ class IllegalCharError(Error):
 
 TT_STR = 'STR'
 TT_INT = 'INT'
+TT_FlAG = 'FLAG'
 TT_FLOAT = 'FLOAT'
 TT_MINUS = 'MINUS'
 TT_PLUS = 'PLUS'
@@ -81,7 +82,7 @@ class Lexer:
         self.advance()
 
 
-    def advance(self) -> None:
+    def advance(self, iterations) -> None:
 
         """Advances the cursor by one char in the input."""
 
@@ -93,8 +94,25 @@ class Lexer:
         else:
             self.current_char = None
 
+        
+    def reverse(self, iterations) -> None:
+         
+        """Reverses the cursor by one char in the input."""
+
+        self.pos -= 1
+
+        if self.pos < 0:
+            self.pos += 1
+            lexer_logger.error('Failed to reverse pos due to invalid index!')
+        else:
+            self.current_char = self.text[self.pos]
+            lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
+
 
     def tokenize(self) -> list:
+        
+        """Start the process of tokenizing."""
+
         tokens = []
 
         while self.current_char != None:
@@ -106,8 +124,17 @@ class Lexer:
             elif self.current_char in DIGITS:
                 tokens.append(self.make_number())
             elif self.current_char == '-':
-                tokens.append(Token(TT_MINUS))
                 self.advance()
+                self.advance()
+                if self.current_char in ' \t':
+                    self.reverse()
+                    self.reverse()
+                    self.make_flag()
+                else:
+                    self.reverse()
+                    self.reverse()
+                    tokens.append(Token(TT_MINUS))
+                    self.advance()
             elif self.current_char == '+':
                 tokens.append(Token(TT_PLUS))
                 self.advance()
@@ -129,6 +156,9 @@ class Lexer:
 
 
     def make_string(self) -> Token:
+
+        """Generates a Token of Type String."""
+
         string = ''
 
         while self.current_char != None and self.current_char in LETTERS:
@@ -141,6 +171,9 @@ class Lexer:
 
 
     def make_number(self) -> Token:
+
+        """Generates Token of Type Integer."""
+
         num = ''
         dot_count = 0
 
@@ -161,3 +194,8 @@ class Lexer:
         else:
             lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
             return Token(TT_FLOAT, float(num))
+            
+
+    def make_flag(self) -> Token:
+        
+        """Generates Token of Type Flag."""
