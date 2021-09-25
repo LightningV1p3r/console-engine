@@ -258,7 +258,7 @@ class Lexer:
         while self.current_char != None and self.current_char in DIGITS + '.':
             
             if self.current_char == '.':
-                if dot_count == 4: break
+                if dot_count == 3: break
                 dot_count += 1
                 ip += '.'
                 self.advance()
