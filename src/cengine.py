@@ -13,6 +13,9 @@ import viperlogger
 lexer_logger = viperlogger.Logger("Lexer")
 lexer_logger.enable_debugmode('True')
 
+parser_logger = viperlogger.Logger("Parser")
+parser_logger.enable_debugmode('True')
+
 ####################
 #Constants
 ####################
@@ -43,15 +46,18 @@ class IllegalCharError(Error):
 #Tokens
 ####################
 
-TT_STR = 'STR'
-TT_INT = 'INT'
-TT_FlAG = 'FLAG'
-TT_FLOAT = 'FLOAT'
-TT_MINUS = 'MINUS'
-TT_PLUS = 'PLUS'
-TT_SLASH = 'SLASH'
+TT_STR      = 'STR'
+TT_INT      = 'INT'
+TT_FLOAT    = 'FLOAT'
+TT_MINUS    = 'MINUS'
+TT_PLUS     = 'PLUS'
+TT_SLASH    = 'SLASH'
 TT_ASTERISK = 'ASTERISK'
-TT_DOT = 'DOT'
+TT_DOT      = 'DOT'
+TT_BANG     = 'BANG'
+TT_FlAG     = 'FLAG'
+TT_PATH     = 'PATH'
+TT_IPADDR   = 'IPADDR'
 
 class Token:
 
@@ -138,7 +144,11 @@ class Lexer:
             elif self.current_char in LETTERS:
                 tokens.append(self.make_string())
             elif self.current_char in DIGITS:
-                tokens.append(self.make_number())
+                res = self.checkforip()
+                if res == True:
+                    tokens.append(self.make_ipaddr())
+                else:
+                    tokens.append(self.make_number())
             elif self.current_char == '-':
                 self.advance(2)
                 if self.current_char in ' \t':
@@ -209,6 +219,57 @@ class Lexer:
             return Token(TT_FLOAT, float(num))
             
 
+    def checkforip(self) -> bool:
+
+        """Checks for possible IP addr"""
+
+        iterations = 0
+        dot_count = 0
+
+        while self.current_char != None and self.current_char in DIGITS + '.':
+
+            if self.current_char == '.':
+                if dot_count == 3: break
+                dot_count += 1
+                iterations += 1
+                self.advance()
+            
+            else:
+                iterations += 1
+                self.advance()
+
+        if dot_count > 1:
+            self.reverse(iterations)
+            lexer_logger.debug("Successfully detected IP")
+            return True
+        else:
+            self.reverse(iterations)
+            lexer_logger.debug("No IP found")
+            return False
+
+
+    def make_ipaddr(self) -> Token:
+        
+        """Generates Token of Type IP Addr."""
+
+        ip = ''
+        dot_count = 0
+        
+        while self.current_char != None and self.current_char in DIGITS + '.':
+            
+            if self.current_char == '.':
+                if dot_count == 4: break
+                dot_count += 1
+                ip += '.'
+                self.advance()
+            else:
+                ip += self.current_char
+                self.advance()
+        
+        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
+        return Token(TT_IPADDR, ip)
+
+
     def make_flag(self) -> Token:
         
         """Generates Token of Type Flag."""
@@ -222,3 +283,28 @@ class Lexer:
 
         lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
         return Token(TT_FlAG, flag)
+
+
+####################
+#Parser
+####################
+
+class Parser:
+
+    def __init__(self, tokens: list) -> None:
+        
+        parser_logger.info(f"To parse: {tokens}")
+        self.tokens = tokens
+        self.pos = -1
+        self.current_token = None
+        self.advance()
+
+    def advance(self) -> None:
+
+        self.pos += 1
+
+        if self.pos < len(self.tokens):
+            self.current_token = self.tokens[self.pos]
+            parser_logger.debug(f"Advanced to pos {self.pos} with token: '{self.current_token}'")
+        else:
+            self.current_token = None
