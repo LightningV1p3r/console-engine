@@ -55,6 +55,7 @@ TT_SLASH    = 'SLASH'
 TT_ASTERISK = 'ASTERISK'
 TT_DOT      = 'DOT'
 TT_BANG     = 'BANG'
+TT_FILE     = 'FILE'
 TT_FlAG     = 'FLAG'
 TT_PATH     = 'PATH'
 TT_IPADDR   = 'IPADDR'
@@ -162,8 +163,11 @@ class Lexer:
                 tokens.append(Token(TT_PLUS))
                 self.advance()
             elif self.current_char == '/':
-                tokens.append(Token(TT_SLASH))
-                self.advance()
+                res = self.checkforpath()
+                if res == True:
+                    tokens.append(self.make_path())
+                else:
+                    tokens.append(Token(TT_SLASH))
             elif self.current_char == '*':
                 tokens.append(Token(TT_ASTERISK))
                 self.advance()
@@ -248,6 +252,32 @@ class Lexer:
             return False
 
 
+    def checkforpath(self) -> bool:
+
+        iterations = 0
+        slash_count = 0
+
+        while self.current_char != None and self.current_char in LETTERS + DIGITS + '/':
+
+            if self.current_char == '/':
+                if slash_count == 2: break
+                slash_count += 1
+                self.advance()
+                iterations += 1
+            else:
+                self.advance()
+                iterations += 1
+
+        if slash_count > 1:
+            self.reverse(iterations)
+            lexer_logger.debug("Successfully detected path")
+            return True
+        else:
+            self.reverse(iterations)
+            lexer_logger.debug("No Path found") 
+            return False 
+
+
     def make_ipaddr(self) -> Token:
         
         """Generates Token of Type IP Addr."""
@@ -283,6 +313,19 @@ class Lexer:
 
         lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
         return Token(TT_FlAG, flag)
+
+
+    def make_path(self) -> Token:
+        
+        path = ''
+
+        while self.current_char != None and self.current_char in LETTERS + DIGITS + '/':
+
+            path += self.current_char
+            self.advance()
+
+        lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
+        return Token(TT_PATH, path)
 
 
 ####################
