@@ -4,6 +4,7 @@
 #Libs
 ####################
 
+from typing import Iterable
 import viperlogger
 
 ####################
@@ -20,8 +21,8 @@ parser_logger.enable_debugmode('True')
 #Constants
 ####################
 
-LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-DIGITS = '0123456789'
+LETTERS     = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+DIGITS      = '0123456789'
 
 ####################
 #Errors
@@ -172,8 +173,13 @@ class Lexer:
                 tokens.append(Token(TT_ASTERISK))
                 self.advance()
             elif self.current_char == '.':
-                tokens.append(Token(TT_DOT))
-                self.advance()
+                res = self.checkforfile()
+                if res == True:
+                    tokens.append(self.make_file(tokens[-1]))
+                    del tokens[-2]
+                else:
+                    tokens.append(Token(TT_DOT))
+                    self.advance()
             else:
                 lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
@@ -254,6 +260,8 @@ class Lexer:
 
     def checkforpath(self) -> bool:
 
+        """Checks for pssible Path."""
+
         iterations = 0
         slash_count = 0
 
@@ -276,6 +284,28 @@ class Lexer:
             self.reverse(iterations)
             lexer_logger.debug("No Path found") 
             return False 
+
+
+    def checkforfile(self) -> bool:
+        
+        iterations = 0
+
+        while self.current_char != None and self.current_char in LETTERS + DIGITS + '.':
+
+            if self.current_char in ' \t':
+                break
+
+            self.advance()
+            iterations += 1
+        
+        if iterations <= 3:
+            self.reverse(iterations)
+            lexer_logger.debug("File found")
+            return True
+        else:
+            self.reverse(iterations)
+            lexer_logger.debug("No file found")
+            return False
 
 
     def make_ipaddr(self) -> Token:
@@ -316,6 +346,8 @@ class Lexer:
 
 
     def make_path(self) -> Token:
+
+        """Generates Token of Type Path."""
         
         path = ''
 
@@ -324,8 +356,44 @@ class Lexer:
             path += self.current_char
             self.advance()
 
+            if self.current_char == '.':
+                
+                iterations = 0
+
+                while True:
+                    
+                    if self.current_char == '/': 
+                        iterations -= 1
+                        self.advance() 
+                        break
+                    
+                    self.reverse()
+                    iterations += 1
+                
+                path = path[:-iterations]
+                break
+
         lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
         return Token(TT_PATH, path)
+
+
+    def make_file(self, filename) -> Token:
+        
+        file_extension = ''
+
+        while self.current_char != None and self.current_char in LETTERS + DIGITS + '.':
+
+            if self.current_char in ' \t':
+                break
+
+            file_extension += self.current_char
+            self.advance()
+
+        filename = filename.value
+        res = filename + file_extension
+        
+        lexer_logger.debug(f"Created TT_FILE with value: '{res}'") 
+        return Token(TT_FILE, res)
 
 
 ####################
