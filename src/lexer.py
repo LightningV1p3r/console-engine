@@ -177,6 +177,24 @@ class Lexer:
                 self.advance()
             elif self.current_char == '.':
                 self.tokens.append(self.handle_dot())
+            elif self.current_char == '!':
+                self.tokens.append(Token(TT_BANG))
+                self.advance()
+            elif self.current_char == '#':
+                self.tokens.append(Token(TT_SHARP))
+                self.advance()
+            elif self.current_char == "'":
+                self.tokens.append(Token(TT_QUOTE))
+                self.advance()
+            elif self.current_char == '&':
+                self.tokens.append(Token(TT_AMPERSAND))
+                self.advance()
+            elif self.current_char == '_':
+                self.tokens.append(Token(TT_UNDERSCORE))
+                self.advance()
+            elif self.current_char == '"':
+                self.tokens.append(Token(TT_DOUBLE_QUOTE))
+                self.advance()
             else:
                 lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
@@ -249,7 +267,7 @@ class Lexer:
 
     def checkforfile(self) -> bool:
         
-        iterations = 0
+        iterations = -1
 
         while self.current_char != None and self.current_char in LETTERS + DIGITS + '.':
 
@@ -259,12 +277,12 @@ class Lexer:
             self.advance()
             iterations += 1
         
-        if iterations <= 3:
-            self.reverse(iterations)
+        if iterations >= 1:
+            self.reverse(iterations + 1)
             lexer_logger.debug("File found")
             return True
         else:
-            self.reverse(iterations)
+            self.reverse(iterations + 1)
             lexer_logger.debug("No file found")
             return False
 
@@ -286,7 +304,7 @@ class Lexer:
     def handle_minus(self) -> Token:
         
         self.advance(2)
-        if self.current_char in ' \t':
+        if self.current_char != None and self.current_char in ' \t':
             self.reverse()
             return self.make_flag()
         else:
@@ -390,6 +408,8 @@ class Lexer:
         flag = ''
 
         while self.current_char != None and self.current_char in LETTERS:
+
+            if self.current_char in ' \t': break
 
             flag += self.current_char
             self.advance()
