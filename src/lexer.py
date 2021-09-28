@@ -4,7 +4,6 @@
 #Libs
 ####################
 
-from typing import Iterable
 import viperlogger
 
 ####################
@@ -13,9 +12,6 @@ import viperlogger
 
 lexer_logger = viperlogger.Logger("Lexer")
 lexer_logger.enable_debugmode('True')
-
-parser_logger = viperlogger.Logger("Parser")
-parser_logger.enable_debugmode('True')
 
 ####################
 #Constants
@@ -47,19 +43,25 @@ class IllegalCharError(Error):
 #Tokens
 ####################
 
-TT_STR      = 'STR'
-TT_INT      = 'INT'
-TT_FLOAT    = 'FLOAT'
-TT_MINUS    = 'MINUS'
-TT_PLUS     = 'PLUS'
-TT_SLASH    = 'SLASH'
-TT_ASTERISK = 'ASTERISK'
-TT_DOT      = 'DOT'
-TT_BANG     = 'BANG'
-TT_FILE     = 'FILE'
-TT_FlAG     = 'FLAG'
-TT_PATH     = 'PATH'
-TT_IPADDR   = 'IPADDR'
+TT_STR              = 'STR'
+TT_INT              = 'INT'
+TT_DOT              = 'DOT'
+TT_PLUS             = 'PLUS'
+TT_BANG             = 'BANG'
+TT_FILE             = 'FILE'
+TT_FlAG             = 'FLAG'
+TT_PATH             = 'PATH'
+TT_SLASH            = 'SLASH'
+TT_FLOAT            = 'FLOAT'
+TT_MINUS            = 'MINUS'
+TT_SHARP            = 'SHARP'
+TT_QUOTE            = 'QUOTE'
+TT_IPADDR           = 'IPADDR'
+TT_ASTERISK         = 'ASTERISK'
+TT_AMPERSAND        = 'AMPERSAND'
+TT_UNDERSCORE       = 'UNDERSCORE'
+TT_DOUBLE_QUOTE     = 'DOUBLE_QUOTE'
+TT_FILE_EXTENSION   = 'FILE_EXTENSION'
 
 class Token:
 
@@ -93,6 +95,9 @@ class Lexer:
         self.current_char = None
         self.advance()
 
+    ####################
+    #Assets
+    ####################
 
     def advance(self, iterations=1) -> None:
 
@@ -131,6 +136,10 @@ class Lexer:
                 lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
 
             iter_count += 1
+
+
+    def merge_tokens(self):
+        pass
 
 
     def tokenize(self) -> list:
@@ -186,48 +195,12 @@ class Lexer:
 
         lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
         return tokens
-
-
-    def make_string(self) -> Token:
-
-        """Generates a Token of Type String."""
-
-        string = ''
-
-        while self.current_char != None and self.current_char in LETTERS:
-
-            string += self.current_char
-            self.advance()
-
-        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
-        return Token(TT_STR, string)
-
-
-    def make_number(self) -> Token:
-
-        """Generates Token of Type Integer."""
-
-        num = ''
-        dot_count = 0
-
-        while self.current_char != None and self.current_char in DIGITS + '.':
-
-            if self.current_char == '.':
-                if dot_count == 1: break
-                dot_count += 1
-                num += '.'
-                self.advance()
-            else:
-                num += self.current_char
-                self.advance()
-
-        if dot_count == 0:
-            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
-            return Token(TT_INT, int(num))
-        else:
-            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
-            return Token(TT_FLOAT, float(num))
             
+    
+    ####################
+    #Checker
+    ####################
+
 
     def checkforip(self) -> bool:
 
@@ -306,6 +279,71 @@ class Lexer:
             self.reverse(iterations)
             lexer_logger.debug("No file found")
             return False
+
+
+    ####################
+    #handlers
+    ####################
+
+    def handle_digit(self):
+        pass
+
+
+    def handle_minus(self):
+        pass
+
+
+    def handle_slash(self):
+        pass
+
+
+    def handle_dot(self):
+        pass
+
+
+    ####################
+    #Token generators
+    ####################
+
+    def make_string(self) -> Token:
+
+        """Generates a Token of Type String."""
+
+        string = ''
+
+        while self.current_char != None and self.current_char in LETTERS:
+
+            string += self.current_char
+            self.advance()
+
+        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
+        return Token(TT_STR, string)
+
+
+    def make_number(self) -> Token:
+
+        """Generates Token of Type Integer."""
+
+        num = ''
+        dot_count = 0
+
+        while self.current_char != None and self.current_char in DIGITS + '.':
+
+            if self.current_char == '.':
+                if dot_count == 1: break
+                dot_count += 1
+                num += '.'
+                self.advance()
+            else:
+                num += self.current_char
+                self.advance()
+
+        if dot_count == 0:
+            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
+            return Token(TT_INT, int(num))
+        else:
+            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
+            return Token(TT_FLOAT, float(num))
 
 
     def make_ipaddr(self) -> Token:
@@ -394,28 +432,3 @@ class Lexer:
         
         lexer_logger.debug(f"Created TT_FILE with value: '{res}'") 
         return Token(TT_FILE, res)
-
-
-####################
-#Parser
-####################
-
-class Parser:
-
-    def __init__(self, tokens: list) -> None:
-        
-        parser_logger.info(f"To parse: {tokens}")
-        self.tokens = tokens
-        self.pos = -1
-        self.current_token = None
-        self.advance()
-
-    def advance(self) -> None:
-
-        self.pos += 1
-
-        if self.pos < len(self.tokens):
-            self.current_token = self.tokens[self.pos]
-            parser_logger.debug(f"Advanced to pos {self.pos} with token: '{self.current_token}'")
-        else:
-            self.current_token = None
