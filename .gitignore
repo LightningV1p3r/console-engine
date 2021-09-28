@@ -4,3 +4,5 @@ env/
 build/
 dist/
 cengine.egg-info/
+__pycache__/
+.pytest_cache/
