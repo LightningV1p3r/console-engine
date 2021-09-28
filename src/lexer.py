@@ -93,6 +93,7 @@ class Lexer:
         self.text = text
         self.pos = -1
         self.current_char = None
+        self.tokens = []
         self.advance()
 
     ####################
@@ -138,63 +139,50 @@ class Lexer:
             iter_count += 1
 
 
-    def merge_tokens(self):
-        pass
+    def merge_tokens(self, tok1: Token, tok2: Token, res_tok_type: Token) -> Token:
+        
+        val1 = tok1.value
+        val2 = tok2.value
+
+        if val1 == int() or float() and val2 == int() or float():
+            res_value = val1 + val2
+        else:
+            res_value = str(val1) + str(val2)
+
+        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
+        return Token(res_tok_type, res_value)
 
 
     def tokenize(self) -> list:
         
         """Start the process of tokenizing."""
 
-        tokens = []
-
         while self.current_char != None:
             
             if self.current_char in ' \t':
                 self.advance()
             elif self.current_char in LETTERS:
-                tokens.append(self.make_string())
+                self.tokens.append(self.make_string())
             elif self.current_char in DIGITS:
-                res = self.checkforip()
-                if res == True:
-                    tokens.append(self.make_ipaddr())
-                else:
-                    tokens.append(self.make_number())
+                self.tokens.append(self.handle_digit())
             elif self.current_char == '-':
-                self.advance(2)
-                if self.current_char in ' \t':
-                    self.reverse()
-                    tokens.append(self.make_flag())
-                else:
-                    self.reverse(2)
-                    tokens.append(Token(TT_MINUS))
-                    self.advance()
+                self.tokens.append(self.handle_minus())
             elif self.current_char == '+':
-                tokens.append(Token(TT_PLUS))
+                self.tokens.append(Token(TT_PLUS))
                 self.advance()
             elif self.current_char == '/':
-                res = self.checkforpath()
-                if res == True:
-                    tokens.append(self.make_path())
-                else:
-                    tokens.append(Token(TT_SLASH))
+                self.tokens.append(self.handle_slash())
             elif self.current_char == '*':
-                tokens.append(Token(TT_ASTERISK))
+                self.tokens.append(Token(TT_ASTERISK))
                 self.advance()
             elif self.current_char == '.':
-                res = self.checkforfile()
-                if res == True:
-                    tokens.append(self.make_file(tokens[-1]))
-                    del tokens[-2]
-                else:
-                    tokens.append(Token(TT_DOT))
-                    self.advance()
+                self.tokens.append(self.handle_dot())
             else:
                 lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
         lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
-        return tokens
+        return self.tokens
             
     
     ####################
@@ -285,20 +273,47 @@ class Lexer:
     #handlers
     ####################
 
-    def handle_digit(self):
-        pass
+    def handle_digit(self) -> Token:
+        
+        res = self.checkforip()
+        
+        if res == True:
+            return self.make_ipaddr()
+        else:
+            return self.make_number()
 
 
-    def handle_minus(self):
-        pass
+    def handle_minus(self) -> Token:
+        
+        self.advance(2)
+        if self.current_char in ' \t':
+            self.reverse()
+            return self.make_flag()
+        else:
+            self.reverse(2)
+            self.advance()
+            return Token(TT_MINUS)
 
 
-    def handle_slash(self):
-        pass
+    def handle_slash(self) -> Token:
+
+        res = self.checkforpath()
+        if res == True:
+            return self.make_path()
+        else:
+            self.advance()
+            return Token(TT_SLASH)
 
 
     def handle_dot(self):
-        pass
+        
+        res = self.checkforfile()
+        if res == True:
+            self.tokens.append(self.make_file_extension())
+            return self.make_file()
+        else:
+            self.advance()
+            return Token(TT_DOT)
 
 
     ####################
@@ -415,7 +430,28 @@ class Lexer:
         return Token(TT_PATH, path)
 
 
-    def make_file(self, filename) -> Token:
+    def make_file(self) -> Token:
+
+        try:
+            filename = self.tokens[-2]
+            file_ext = self.tokens[-1]
+        except IndexError:
+            filename = self.tokens[1]
+            file_ext = self.tokens[2]
+
+        file_ = self.merge_tokens(filename, file_ext, TT_FILE)
+
+        try:
+            del self.tokens[-1]
+            del self.tokens[-1]
+        except IndexError:
+            del self.tokens[-1]
+
+        lexer_logger.debug(f"Created TT_FILE with value: '{file_.value}'")
+        return file_
+
+
+    def make_file_extension(self) -> Token:
         
         file_extension = ''
 
@@ -427,8 +463,5 @@ class Lexer:
             file_extension += self.current_char
             self.advance()
 
-        filename = filename.value
-        res = filename + file_extension
-        
-        lexer_logger.debug(f"Created TT_FILE with value: '{res}'") 
-        return Token(TT_FILE, res)
+        lexer_logger.debug(f"Created TT_FILE_EXTENSION with value: '{file_extension}'")
+        return Token(TT_FILE_EXTENSION, file_extension)
