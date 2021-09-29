@@ -1,3 +1,4 @@
+# Copyright (c) 2021 LightningV1p3r
 
 ####################
 #Libs
