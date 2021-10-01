@@ -46,6 +46,7 @@ class IllegalCharError(Error):
 TT_STR              = 'STR'
 TT_INT              = 'INT'
 TT_DOT              = 'DOT'
+TT_EOF              = 'EOF'
 TT_PLUS             = 'PLUS'
 TT_BANG             = 'BANG'
 TT_FILE             = 'FILE'
@@ -200,8 +201,11 @@ class Lexer:
                 lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
+        self.tokens.append(Token(TT_EOF))
+
         lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
         lexer_logger.debug("============================== Tokenizing END ==============================\n")
+        
         return self.tokens
             
     
