@@ -89,6 +89,7 @@ class Lexer:
 
     def __init__(self, text) -> None:
         
+        lexer_logger.debug("============================== Tokenizing START ==============================")
         lexer_logger.debug(f"To tokenize: '{text}'")
         self.text = text
         self.pos = -1
@@ -200,6 +201,7 @@ class Lexer:
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
         lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
+        lexer_logger.debug("============================== Tokenizing END ==============================\n")
         return self.tokens
             
     
@@ -268,16 +270,27 @@ class Lexer:
     def checkforfile(self) -> bool:
         
         iterations = -1
+        file_found = bool()
 
         while self.current_char != None and self.current_char in LETTERS + DIGITS + '.':
 
             if self.current_char in ' \t':
                 break
+            
+            elif self.current_char in DIGITS:
+                file_found = False
+                break
+            else: 
+                file_found = True
 
             self.advance()
             iterations += 1
         
-        if iterations >= 1:
+        if file_found == False:
+            self.reverse(iterations + 1)
+            lexer_logger.debug("No file found")
+            return False
+        elif iterations >= 1:
             self.reverse(iterations + 1)
             lexer_logger.debug("File found")
             return True
@@ -359,19 +372,30 @@ class Lexer:
 
         num = ''
         dot_count = 0
+        is_file = False
 
         while self.current_char != None and self.current_char in DIGITS + '.':
 
             if self.current_char == '.':
                 if dot_count == 1: break
-                dot_count += 1
-                num += '.'
-                self.advance()
+                file_res = self.checkforfile()
+                    
+                if file_res == False:
+                    dot_count += 1
+                    num += '.'
+                    self.advance()
+                else:
+                    is_file = True
+                    break
+                    
             else:
                 num += self.current_char
                 self.advance()
-
-        if dot_count == 0:
+        if is_file == True:
+            self.tokens.append(Token(TT_INT, int(num)))
+            self.tokens.append(self.make_file_extension())
+            return self.make_file()
+        elif dot_count == 0:
             lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
             return Token(TT_INT, int(num))
         else:

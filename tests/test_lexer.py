@@ -92,13 +92,24 @@ class TestLexer:
         assert res.value == exp_res.value
 
 
-    def test_TT_FILE(self):
+    def test_TT_FILE_1(self):
         
         val = ' file.py '
         lexer_ = lexer.Lexer(val)
         exp_res = lexer.Token(TT_FILE, 'file.py')
         res = lexer_.tokenize()[0]
         
+        assert res.type == exp_res.type
+        assert res.value == exp_res.value
+
+    
+    def test_TT_FILE_2(self):
+
+        val = ' 1035.py '
+        lexer_ = lexer.Lexer(val)
+        exp_res = lexer.Token(TT_FILE, '1035.py')
+        res = lexer_.tokenize()[0]
+
         assert res.type == exp_res.type
         assert res.value == exp_res.value
 
