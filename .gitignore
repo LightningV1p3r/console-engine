@@ -3,6 +3,7 @@ logs/
 env/
 build/
 dist/
+demo.py
 cengine.egg-info/
 __pycache__/
 .pytest_cache/
