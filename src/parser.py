@@ -1,19 +1,19 @@
-#Copyright (c) 2021 LightningV1p3r
+# Copyright (c) 2021 LightningV1p3r
 
 ####################
-#Libs
+# Libs
 ####################
 
 import viperlogger
 
 ####################
-#Logger
+# Logger
 ####################
 
 parser_logger = viperlogger.Logger("Parser")
 
 ####################
-#Parser
+# Parser
 ####################
 
 class Parser:
