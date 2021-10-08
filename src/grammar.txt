@@ -1,0 +1,8 @@
+
+expression: command | n * command
+
+command: keyword + argument | keyword + n * argument
+
+keyword: string
+
+argument: flag + string | int | float ; etc.

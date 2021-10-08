@@ -13,12 +13,31 @@ import viperlogger
 parser_logger = viperlogger.Logger("Parser")
 
 ####################
+#Nodes
+####################
+
+class CommandNode:
+
+    def __init__(self, keyword, args) -> None:
+        self.keyword = keyword
+        self.args = args
+
+
+class ArgumentNode:
+
+    def __init__(self, flag, args) -> None:
+
+        self.flag = flag
+        self.args = args
+
+
+####################
 # Parser
 ####################
 
 class Parser:
 
-    def __init__(self, tokens: list) -> None:
+    def __init__(self, tokens: list, args: list) -> None:
         
         parser_logger.info(f"To parse: {tokens}")
         self.tokens = tokens
