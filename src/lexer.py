@@ -124,9 +124,7 @@ class Lexer:
 
             if self.pos < len(self.text):
                 self.current_char = self.text[self.pos]
-                lexer_logger.debug(f"""
-Advanced to pos {self.pos} with value: '{self.current_char}'
-""")
+                lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
 
             else:
                 self.current_char = None
@@ -145,14 +143,10 @@ Advanced to pos {self.pos} with value: '{self.current_char}'
 
             if self.pos < 0:
                 self.pos += 1
-                lexer_logger.error('''
-Failed to reverse pos due to invalid index!
-                ''')
+                lexer_logger.error('Failed to reverse pos due to invalid index!')
             else:
                 self.current_char = self.text[self.pos]
-                lexer_logger.debug(f"""
-Reversed to pos {self.pos} with value: '{self.current_char}'
-""")
+                lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
 
             iter_count += 1
 
@@ -166,9 +160,7 @@ Reversed to pos {self.pos} with value: '{self.current_char}'
         else:
             res_value = str(val1) + str(val2)
 
-        lexer_logger.debug(f"""
-Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'
-""")
+        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
         return Token(res_tok_type, res_value)
 
     def tokenize(self) -> list:
@@ -218,18 +210,12 @@ Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'
                 self.tokens.append(Token(TT_DOUBLE_QUOTE))
                 self.advance()
             else:
-                lexer_logger.error(f"""
-Illegal Character '{self.current_char}' at pos: {self.pos}
-""")
-                return IllegalCharError(f"""
-'{self.current_char}' at pos: {self.pos}
-""")
+                lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
+                return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
         self.tokens.append(Token(TT_EOF))
 
-        lexer_logger.debug(f"""
-Finished tokenizing process for text: '{self.text}'
-""")
+        lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
         lexer_logger.debug("""
 ============================== Tokenizing END ==============================\n
 """)
