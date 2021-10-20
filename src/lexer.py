@@ -98,8 +98,7 @@ class Lexer:
     def __init__(self, text) -> None:
 
         lexer_logger.debug("""
-============================== Tokenizing START ==============================
-""")
+============================== Tokenizing START ==============================""")
 
         lexer_logger.debug(f"To tokenize: '{text}'")
         self.text = text

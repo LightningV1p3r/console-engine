@@ -5,6 +5,7 @@
 ####################
 
 import viperlogger
+from dataclasses import dataclass
 
 ####################
 # Logger
@@ -16,19 +17,36 @@ parser_logger = viperlogger.Logger("Parser")
 #Nodes
 ####################
 
+@dataclass
+class ExpressionNode:
+    expr = tuple
+
+
+@dataclass
 class CommandNode:
-
-    def __init__(self, keyword, args) -> None:
-        self.keyword = keyword
-        self.args = args
+    keyword = None
+    args = tuple
 
 
+@dataclass
+class KeywordNode:
+    value = str
+
+
+@dataclass
 class ArgumentNode:
+    flag = None
+    value = None
+ 
 
-    def __init__(self, flag, args) -> None:
+@dataclass
+class FlagNode:
+    value = str
 
-        self.flag = flag
-        self.args = args
+
+@dataclass
+class ValueNode:
+    value = None
 
 
 ####################
@@ -49,8 +67,32 @@ class Parser:
 
         self.pos += 1
 
-        if self.pos < len(self.tokens):
+        if self.current_token.type == 'EOF':
+            self.current_token = None
+        else:
             self.current_token = self.tokens[self.pos]
             parser_logger.debug(f"Advanced to pos {self.pos} with token: '{self.current_token}'")
-        else:
-            self.current_token = None
+        
+    def parse(self):
+
+        if self.current_token == None:
+            return None
+
+        result = self.expr()
+
+        return result
+
+    def expr(self):
+        pass
+
+    def cmd(self):
+        pass
+
+    def arg(self):
+        pass
+
+    def flag(self):
+        pass
+
+    def val(self):
+        pass
