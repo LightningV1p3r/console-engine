@@ -1,7 +1,6 @@
 test/
 logs/
 env/
-dev/
 build/
 dist/
 demo.py
