@@ -29,7 +29,7 @@ class ExpressionNode:
         return self.as_string()
 
     def __repr__(self) -> str:
-        print(self.as_string())
+        return self.as_string()
 
 
 class TermNode:
@@ -46,7 +46,7 @@ class TermNode:
         return self.as_string()
 
     def __repr__(self) -> str:
-        print(self.as_string())
+        return self.as_string()
 
     
 class FlagNode:
@@ -62,7 +62,7 @@ class FlagNode:
         return self.as_string()
 
     def __repr__(self) -> str:
-        print(self.as_string())
+        return self.as_string()
 
 
 class KeywordNode:
@@ -78,7 +78,7 @@ class KeywordNode:
         return self.as_string()
 
     def __repr__(self) -> str:
-        print(self.as_string())
+        return self.as_string()
 
 class ArgNode:
 
@@ -102,5 +102,67 @@ class ArgNode:
 
 class Parser:
 
-    def __init__(self) -> None:
+    def __init__(self, tokens, keywords) -> None:
+        self.tokens = tokens
+        self.keywords = keywords
+        self.pos = -1
+        self.current_token = None
+        self.advance()
+
+    def advance(self) -> None:
+        
+        self.pos += 1
+
+        if self.pos < len(self.tokens):
+            self.current_token = self.tokens[self.pos]
+            parser_logger.debug(f"Advanced to token '{self.current_token}' at pos {self.pos}")
+        
+        else:
+            self.current_token = None
+
+    def reverse(self, iterations=1):
+
+        iter_count = 0
+
+        while iter_count < iterations:
+
+            self.pos -= 1
+
+            if self.pos < 0:
+                self.pos += 1
+                parser_logger.error('Failed to reverse pos due to invalid index!')
+            else:
+                self.current_token = self.tokens[self.pos]
+                parser_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_token}'")
+
+            iter_count += 1
+
+    ####################
+    #Checker
+    ####################
+
+    def checkfor_arg(self):
+        pass
+
+    def checkfor_keyword(self):
+        pass
+
+    def checkfor_flag(self):
+        pass
+
+    ####################
+    #parsing
+    ####################
+
+    def parse(self):
+
+        res = self.parse_expression()
+
+    def parse_expression(self):
+        pass
+
+    def parse_term(self):
+        pass
+
+    def parse_factor(self):
         pass
