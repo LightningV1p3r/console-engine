@@ -16,14 +16,24 @@ parser_logger = viperlogger.Logger("Parser")
 #Nodes
 ####################
 
+    ####################
+    #Non Terminals
+    ####################
+
 class ExpressionNode:
     
-    def __init__(self, node1) -> None:
+    def __init__(self, node1, node2=None) -> None:
         self.node1 = node1
+        self.node2 = node2
 
     def as_string(self) -> str:
-        res = f'({self.node1})'
-        return res
+        
+        if self.node2 == None:
+            res = f'({self.node1})'
+            return res
+        else:
+            res = f'({self.node1} + {self.node2})'
+            return res
 
     def __str__(self) -> str:
         return self.as_string()
@@ -32,30 +42,15 @@ class ExpressionNode:
         return self.as_string()
 
 
-class TermNode:
+class CommandNode:
 
     def __init__(self, node1, node2) -> None:
         self.node1 = node1
         self.node2 = node2
 
     def as_string(self) -> str:
+        
         res = f'({self.node1} + {self.node2})'
-        return res 
-
-    def __str__(self) -> str:
-        return self.as_string()
-
-    def __repr__(self) -> str:
-        return self.as_string()
-
-    
-class FlagNode:
-
-    def __init__(self, val) -> None:
-        self.val = val
-
-    def as_string(self) -> str:
-        res = f"'FLAG: {self.val}'"
         return res
 
     def __str__(self) -> str:
@@ -64,14 +59,126 @@ class FlagNode:
     def __repr__(self) -> str:
         return self.as_string()
 
+
+class FlagValueNode:
+
+    def __init__(self, node1, node2) -> None:
+        self.node1 = node1
+        self.node2 = node2
+
+    def as_string(self) -> str:
+        
+        res = f'({self.node1} + {self.node2})'
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+
+
+class KeywordChainNode:
+
+    def __init__(self, list) -> None:
+        self.list = list
+
+    def as_string(self) -> str:
+        
+        res = '('
+        iterations = 0
+
+        for i in self.list:
+            res += str(i)
+            iterations += 1
+
+            if iterations < len(self.list):
+                res += ' + '
+        
+        res += ')'
+
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+
+
+class DataChainNode:
+
+    def __init__(self, list) -> None:
+        self.list = list
+
+    def as_string(self) -> str:
+        
+        res = '('
+        iterations = 0
+
+        for i in self.list:
+            res += str(i)
+            iterations += 1
+
+            if iterations < len(self.list):
+                res += ' + '
+        
+        res += ')'
+
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+
+    ####################
+    #Terminals
+    ####################
 
 class KeywordNode:
 
-    def __init__(self, val) -> None:
-        self.val = val
+    def __init__(self, value) -> None:
+        self.value = value
 
     def as_string(self) -> str:
-        res = f"'KEYWORD: {self.val}'"
+        
+        res = f'({self.value})'
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+
+
+class FlagNode:
+
+    def __init__(self, value) -> None:
+        self.value = value
+
+    def as_string(self) -> str:
+        
+        res = f'({self.value})'
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+
+
+class ValueNode:
+
+    def __init__(self, value) -> None:
+        self.value = value
+
+    def as_string(self) -> str:
+        
+        res = f'({self.value})'
         return res
     
     def __str__(self) -> str:
@@ -79,22 +186,6 @@ class KeywordNode:
 
     def __repr__(self) -> str:
         return self.as_string()
-
-class ArgNode:
-
-    def __init__(self, type, val) -> None:
-        self.type = type
-        self.val = val
-
-    def as_string(self) -> str:
-        res = f"'{self.type}: {self.val}'"
-        return res
-
-    def __str__(self) -> str:
-        return self.as_string()
-
-    def __repr__(self) -> str:
-        print(self.as_string())
 
 ####################
 #Parser
@@ -141,28 +232,35 @@ class Parser:
     #Checker
     ####################
 
-    def checkfor_arg(self):
-        pass
 
-    def checkfor_keyword(self):
-        pass
-
-    def checkfor_flag(self):
-        pass
-
+        
     ####################
     #parsing
     ####################
 
     def parse(self):
+        return self.expression()
 
-        res = self.parse_expression()
-
-    def parse_expression(self):
+    def expression(self):
         pass
 
-    def parse_term(self):
+    def command(self):
         pass
 
-    def parse_factor(self):
+    def keyword(self):
+        pass
+
+    def keyword_chain(self):
+        pass
+
+    def flag(self):
+        pass
+
+    def value(self):
+        pass
+
+    def flag_value_pair(self):
+        pass
+
+    def data_chain(self):
         pass
