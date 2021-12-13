@@ -1,6 +1,34 @@
 
-E -> F | T
+E -> C | C + C | E + C | E + E
 
-T -> F + T | F + F | T + T
+C -> K + V | K + DC | K + F | K + FVP | KC + V | KC + DC | KC + F | KC + FVP
 
-F -> ARG | FLAG | KEYWORD
+KC -> n * K
+
+DC -> n * FVP
+
+FVP -> F + V
+
+########################################
+# Non terminals
+########################################
+
+E = Expression
+
+C = Command
+
+KC = KeywordChain
+
+FVP = FlagValuePair
+
+DC = DataChain
+
+########################################
+#terminals
+########################################
+
+K = Keyword
+
+V = Value
+
+F = Flag
