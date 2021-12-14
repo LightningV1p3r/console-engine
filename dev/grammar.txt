@@ -5,7 +5,9 @@ C -> K + V | K + DC | K + F | K + FVP | KC + V | KC + DC | KC + F | KC + FVP
 
 KC -> n * K
 
-DC -> n * FVP
+DC -> n * FVP | FC + n * FVP
+
+FC -> n * F
 
 FVP -> F + V
 
@@ -16,6 +18,8 @@ FVP -> F + V
 E = Expression
 
 C = Command
+
+FC = FlagChain
 
 KC = KeywordChain
 
