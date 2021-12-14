@@ -1,5 +1,5 @@
 
-E -> C | C + C | E + C | E + E
+E -> n * C
 
 C -> K + V | K + DC | K + F | K + FVP | KC + V | KC + DC | KC + F | KC + FVP
 
