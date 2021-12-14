@@ -21,26 +21,31 @@ parser_logger = viperlogger.Logger("Parser")
     ####################
 
 class ExpressionNode:
-    
-    def __init__(self, node1, node2=None) -> None:
-        self.node1 = node1
-        self.node2 = node2
+
+    def __init__(self, list) -> None:
+        self.list = list
 
     def as_string(self) -> str:
         
-        if self.node2 == None:
-            res = f'({self.node1})'
-            return res
-        else:
-            res = f'({self.node1} + {self.node2})'
-            return res
+        res = '('
+        iterations = 0
+
+        for i in self.list:
+            res += str(i)
+            iterations += 1
+
+            if iterations < len(self.list):
+                res += ' + '
+        
+        res += ')'
+
+        return res
 
     def __str__(self) -> str:
         return self.as_string()
 
     def __repr__(self) -> str:
         return self.as_string()
-
 
 class CommandNode:
 
@@ -133,6 +138,33 @@ class DataChainNode:
     def __repr__(self) -> str:
         return self.as_string()
 
+class FlagChainNode:
+
+    def __init__(self, list) -> None:
+        self.list = list
+
+    def as_string(self) -> str:
+        
+        res = '('
+        iterations = 0
+
+        for i in self.list:
+            res += str(i)
+            iterations += 1
+
+            if iterations < len(self.list):
+                res += ' + '
+        
+        res += ')'
+
+        return res
+
+    def __str__(self) -> str:
+        return self.as_string()
+
+    def __repr__(self) -> str:
+        return self.as_string()
+ 
     ####################
     #Terminals
     ####################
@@ -232,8 +264,104 @@ class Parser:
     #Checker
     ####################
 
+    def check_for_kc(self):
 
+        iterations = 0
+        keyword_count = 0
+
+        while self.current_token.value in self.keywords:
+            
+            if self.current_token.value in self.keywords:
+                keyword_count += 1
+            iterations += 1
+            self.advance()
+
+        self.reverse(iterations)
+
+        if keyword_count > 1:
+
+            return True
+        else: 
+            return False
+
+    def check_for_fvp(self):
+
+        iterations = 0
         
+        if self.current_token.type == 'FLAG':
+            self.advance()
+            iterations += 1
+
+            if self.current_token.type != 'FLAG' and self.current_token.value not in self.keywords:
+                self.reverse(iterations)
+                return True
+            else:
+                return False
+
+        else:
+            return False
+
+    def check_for_dc_complex(self):
+
+        flag_chain = False
+        fvp = False
+
+        flags = 0
+        iterations = 0
+
+        while self.current_token.type == 'FLAG':
+            flags += 1
+            iterations += 1
+            self.advance()
+
+        self.reverse()
+
+        if self.check_for_fvp() == True:
+            fvp = True
+
+        self.reverse(iterations - 1)
+
+        if flags >= 2 and fvp == True:
+            flag_chain = True
+
+        if flag_chain == True and fvp == True:
+
+            return True
+        else:
+
+            return False
+
+    def check_for_dc_simple(self):
+
+        iterations = 0
+
+        if self.check_for_fvp() == True:
+            self.advance(2)
+            iterations += 2
+            if self.check_for_fvp() == True:
+                self.reverse(iterations)
+                return True
+            else:
+                self.reverse(iterations)
+                return False
+
+    def check_for_fc(self):
+        
+        iterations = 0
+        flag_count = 0
+
+        while self.current_token.type == 'FLAG':
+            flag_count += 1
+            iterations += 1
+            self.advance()
+        
+        self.reverse(iterations)
+
+        if flag_count > 1:
+            return True
+        else:
+            return False
+
     ####################
     #parsing
     ####################
@@ -241,26 +369,112 @@ class Parser:
     def parse(self):
         return self.expression()
 
+
     def expression(self):
-        pass
+
+        res = []
+
+        if self.current_token != None:
+        
+            res.append(self.command())
+            self.advance()
+
+            while True:
+                if self.current_token.type == 'EOF':
+                    break
+
+                if self.current_token.type == 'AMPERSAND':
+                    self.advance()
+                    if self.current_token.type == 'AMPERSAND':
+                        self.advance()
+                        res.append(self.command())
+                    else:
+                        res.append(self.command())
+
+                self.advance()
+
+            return ExpressionNode(res)
 
     def command(self):
-        pass
+
+        if self.current_token.value in self.keywords:
+            left = self.keyword()
+        else:
+            return None
+        
+        self.advance()
+            
+        if self.current_token.type == 'FLAG':
+
+            if self.check_for_dc_complex() == True:
+                right = self.data_chain("complex")
+            
+            elif self.check_for_dc_simple() == True:
+                right = self.data_chain("simple")
+
+            elif self.check_for_fvp() == True:
+                right = self.flag_value_pair()
+            
+            elif self.check_for_fc() == True:
+                right = self.flag_chain()    
+
+            else:
+                right = self.flag()
+
+        else:
+            right = self.value()
+
+        return CommandNode(left, right)
 
     def keyword(self):
-        pass
+
+        if self.current_token.value in self.keywords:
+            if self.check_for_kc() == True:
+                return self.keyword_chain()
+            else:
+                return KeywordNode(self.current_token.value)
+        else:
+            return None
 
     def keyword_chain(self):
-        pass
+
+        res = []
+        
+        while self.current_token.value in self.keywords:
+            res.append(self.current_token.value)
+            self.advance()
+
+        return KeywordChainNode(res)
 
     def flag(self):
-        pass
+        return FlagNode(self.current_token.value)
 
     def value(self):
-        pass
+        return ValueNode(self.current_token)
 
     def flag_value_pair(self):
-        pass
+        flag = self.flag()
+        self.advance()
+        value = self.value()
+        return FlagValueNode(flag, value)
 
-    def data_chain(self):
-        pass
+    def data_chain(self, mode):
+        
+        res = []
+
+        if mode == 'complex':
+            res.append(self.flag_chain())
+        while self.check_for_fvp == True:
+            res.append(self.flag_value_pair())
+            self.advance()
+        return DataChainNode(res)
+
+    def flag_chain(self):
+        
+        res = []
+
+        while self.current_token.type == 'FLAG':
+            res.append(self.flag())
+            self.advance()
+
+        return FlagChainNode(res)
