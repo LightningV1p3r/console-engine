@@ -243,6 +243,8 @@ class Parser:
         else:
             self.current_token = None
 
+        print('a - ' + str(self.current_token))
+
     def reverse(self, iterations=1):
 
         iter_count = 0
@@ -260,6 +262,7 @@ class Parser:
 
             iter_count += 1
 
+        print('r - ' + str(self.current_token))
     ####################
     #Checker
     ####################
@@ -285,24 +288,29 @@ class Parser:
             return False
 
     def check_for_fvp(self):
+        print('check_fvp')
 
-        iterations = 0
+        if self.current_token != None:
+            if self.current_token.type != 'EOF':
         
-        if self.current_token.type == 'FLAG':
-            self.advance()
-            iterations += 1
+                if self.current_token.type == 'FLAG':
+                    self.advance()
 
-            if self.current_token.type != 'FLAG' and self.current_token.value not in self.keywords:
-                self.reverse(iterations)
-                return True
+                    if self.current_token.type != 'FLAG' and self.current_token.type != 'EOF':
+                        self.reverse()
+                        return True
+                    else:
+                        self.reverse()
+                        return False
+                else:
+                    return False
             else:
                 return False
-
         else:
             return False
 
     def check_for_dc_complex(self):
-
+        print('check dc_c')
         flag_chain = False
         fvp = False
 
@@ -319,31 +327,37 @@ class Parser:
         if self.check_for_fvp() == True:
             fvp = True
 
-        self.reverse(iterations - 1)
+        self.reverse(iterations -1)
 
         if flags >= 2 and fvp == True:
             flag_chain = True
 
         if flag_chain == True and fvp == True:
 
-            return True
+            return True, flags - 1
         else:
 
-            return False
+            return False, None
 
     def check_for_dc_simple(self):
-
+        print("check dc_s")
         iterations = 0
 
         if self.check_for_fvp() == True:
-            self.advance(2)
+            self.advance()
+            self.advance()
             iterations += 2
             if self.check_for_fvp() == True:
                 self.reverse(iterations)
+                print("res - true")
                 return True
             else:
                 self.reverse(iterations)
+                print('res - f')
                 return False
+        else:
+            print('res - f')
+            return False
 
     def check_for_fc(self):
         
@@ -358,7 +372,7 @@ class Parser:
         self.reverse(iterations)
 
         if flag_count > 1:
-            return True
+            return True, flag_count
         else:
             return False
 
@@ -380,7 +394,7 @@ class Parser:
             self.advance()
 
             while True:
-                if self.current_token.type == 'EOF':
+                if self.current_token == None or self.current_token.type == 'EOF':
                     break
 
                 if self.current_token.type == 'AMPERSAND':
@@ -406,8 +420,10 @@ class Parser:
             
         if self.current_token.type == 'FLAG':
 
-            if self.check_for_dc_complex() == True:
-                right = self.data_chain("complex")
+            check_dc_c, flag_count = self.check_for_dc_complex()
+
+            if check_dc_c == True:
+                right = self.data_chain("complex", flag_count)
             
             elif self.check_for_dc_simple() == True:
                 right = self.data_chain("simple")
@@ -444,37 +460,49 @@ class Parser:
             res.append(self.current_token.value)
             self.advance()
 
+        self.reverse()
         return KeywordChainNode(res)
 
     def flag(self):
+        print('F')
         return FlagNode(self.current_token.value)
 
     def value(self):
         return ValueNode(self.current_token)
 
     def flag_value_pair(self):
+        print("fvp")
         flag = self.flag()
         self.advance()
         value = self.value()
         return FlagValueNode(flag, value)
 
-    def data_chain(self, mode):
-        
+    def data_chain(self, mode, flag_count=None):
+        print("dc")
         res = []
 
         if mode == 'complex':
-            res.append(self.flag_chain())
-        while self.check_for_fvp == True:
-            res.append(self.flag_value_pair())
-            self.advance()
+            res.append(self.flag_chain('counter',flag_count))
+        while True:
+            if self.check_for_fvp() == True:
+                res.append(self.flag_value_pair())
+                self.advance()
+            else:
+                break
         return DataChainNode(res)
 
-    def flag_chain(self):
-        
+    def flag_chain(self, mode, flag_count):
+        print(f'fc - {flag_count}')
         res = []
-
-        while self.current_token.type == 'FLAG':
-            res.append(self.flag())
-            self.advance()
+        iterations = 0
+        if mode == 'counter':
+            while iterations < flag_count:
+                iterations += 1
+                res.append(self.flag())
+                self.advance()
+        else:
+            while self.current_token.type == 'FLAG':
+                res.append(self.flag())
+                self.advance()
 
         return FlagChainNode(res)

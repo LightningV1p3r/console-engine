@@ -329,12 +329,14 @@ class Lexer:
 
     def handle_minus(self) -> Token:
 
-        self.advance(2)
-        if self.current_char is not None and self.current_char in ' \t':
-            self.reverse()
-            return self.make_flag()
+        self.advance()
+        if self.current_char != None and self.current_char not in ' \t':
+            self.advance()
+            if self.current_char == None or self.current_char in ' \t': 
+                self.reverse()
+                return self.make_flag()
         else:
-            self.reverse(2)
+            self.reverse()
             self.advance()
             return Token(TT_MINUS)
 
