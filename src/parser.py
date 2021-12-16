@@ -1,18 +1,6 @@
 # Copyright (c) 2021 LightningV1p3r
 
 ####################
-# Libs
-####################
-
-import viperlogger
-
-####################
-# Logger
-####################
-
-parser_logger = viperlogger.Logger("Parser")
-
-####################
 #Nodes
 ####################
 
@@ -238,12 +226,8 @@ class Parser:
 
         if self.pos < len(self.tokens):
             self.current_token = self.tokens[self.pos]
-            parser_logger.debug(f"Advanced to token '{self.current_token}' at pos {self.pos}")
-        
         else:
             self.current_token = None
-
-        print('a - ' + str(self.current_token))
 
     def reverse(self, iterations=1):
 
@@ -255,14 +239,11 @@ class Parser:
 
             if self.pos < 0:
                 self.pos += 1
-                parser_logger.error('Failed to reverse pos due to invalid index!')
             else:
                 self.current_token = self.tokens[self.pos]
-                parser_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_token}'")
 
             iter_count += 1
 
-        print('r - ' + str(self.current_token))
     ####################
     #Checker
     ####################
@@ -288,7 +269,6 @@ class Parser:
             return False
 
     def check_for_fvp(self):
-        print('check_fvp')
 
         if self.current_token != None:
             if self.current_token.type != 'EOF':
@@ -310,7 +290,7 @@ class Parser:
             return False
 
     def check_for_dc_complex(self):
-        print('check dc_c')
+
         flag_chain = False
         fvp = False
 
@@ -340,7 +320,7 @@ class Parser:
             return False, None
 
     def check_for_dc_simple(self):
-        print("check dc_s")
+
         iterations = 0
 
         if self.check_for_fvp() == True:
@@ -349,14 +329,11 @@ class Parser:
             iterations += 2
             if self.check_for_fvp() == True:
                 self.reverse(iterations)
-                print("res - true")
                 return True
             else:
                 self.reverse(iterations)
-                print('res - f')
                 return False
         else:
-            print('res - f')
             return False
 
     def check_for_fc(self):
@@ -464,21 +441,20 @@ class Parser:
         return KeywordChainNode(res)
 
     def flag(self):
-        print('F')
         return FlagNode(self.current_token.value)
 
     def value(self):
         return ValueNode(self.current_token)
 
     def flag_value_pair(self):
-        print("fvp")
+
         flag = self.flag()
         self.advance()
         value = self.value()
         return FlagValueNode(flag, value)
 
     def data_chain(self, mode, flag_count=None):
-        print("dc")
+
         res = []
 
         if mode == 'complex':
@@ -492,7 +468,7 @@ class Parser:
         return DataChainNode(res)
 
     def flag_chain(self, mode, flag_count):
-        print(f'fc - {flag_count}')
+
         res = []
         iterations = 0
         if mode == 'counter':
