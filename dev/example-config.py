@@ -2,31 +2,34 @@
 import json
 
 config = {
-    'keywords': {},
+    'keywords': {
+        'kywrd1': 'method1',
+        'kywrd2': 'method2'
+    },
     'methods': {
         "method1": {
             'arguments': None
         }
     },
-    'groups': {
+    'group_assign': {
         'group1': {
-            'method1': {
+            'method2': {
                 'arguments': {
-                    'required': {
                         'flags': {
                             't': {
                                 'type': 'FILE',
                                 'idx': 'target_file'
                             }
                         },
-                        'values': {}
+                        'values': {
+                            'IPADDR': 'target_ip'
+                        }
                     },
-                    'optional': {}
                 } 
             }
         }
     }
-}
+
 
 with open('cfg.json', 'w') as f:
     f.write(json.dumps(config, indent=4))
