@@ -4,6 +4,7 @@ env/
 build/
 dist/
 demo.py
+debugging.py
 cengine.egg-info/
 __pycache__/
 .pytest_cache/
