@@ -4,14 +4,14 @@
 # Libs
 ####################
 
-import viperlogger
+#import viperlogger
 
 ####################
 # Logger
 ####################
 
-lexer_logger = viperlogger.Logger("Lexer")
-lexer_logger.enable_debugmode('True')
+#lexer_logger = viperlogger.Logger("Lexer")
+#lexer_logger.enable_debugmode('True')
 
 ####################
 # Constants
@@ -97,10 +97,10 @@ class Lexer:
 
     def __init__(self, text) -> None:
 
-        lexer_logger.debug("""
-============================== Tokenizing START ==============================""")
-
-        lexer_logger.debug(f"To tokenize: '{text}'")
+#        lexer_logger.debug("""
+#============================== Tokenizing START ==============================""")
+#
+ #       lexer_logger.debug(f"To tokenize: '{text}'")
         self.text = text
         self.pos = -1
         self.current_char = None
@@ -123,7 +123,7 @@ class Lexer:
 
             if self.pos < len(self.text):
                 self.current_char = self.text[self.pos]
-                lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
+#                lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
 
             else:
                 self.current_char = None
@@ -142,10 +142,10 @@ class Lexer:
 
             if self.pos < 0:
                 self.pos += 1
-                lexer_logger.error('Failed to reverse pos due to invalid index!')
+#                lexer_logger.error('Failed to reverse pos due to invalid index!')
             else:
                 self.current_char = self.text[self.pos]
-                lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
+ #               lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
 
             iter_count += 1
 
@@ -159,7 +159,7 @@ class Lexer:
         else:
             res_value = str(val1) + str(val2)
 
-        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
+#        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
         return Token(res_tok_type, res_value)
 
     def tokenize(self) -> list:
@@ -209,15 +209,15 @@ class Lexer:
                 self.tokens.append(Token(TT_DOUBLE_QUOTE))
                 self.advance()
             else:
-                lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
+#                lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
         self.tokens.append(Token(TT_EOF))
 
-        lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
-        lexer_logger.debug("""
-============================== Tokenizing END ==============================\n
-""")
+#        lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
+#        lexer_logger.debug("""
+#============================== Tokenizing END ==============================\n
+#""")
 
         return self.tokens
 
@@ -247,11 +247,11 @@ class Lexer:
 
         if dot_count > 1:
             self.reverse(iterations)
-            lexer_logger.debug("Successfully detected IP")
+#            lexer_logger.debug("Successfully detected IP")
             return True
         else:
             self.reverse(iterations)
-            lexer_logger.debug("No IP found")
+#            lexer_logger.debug("No IP found")
             return False
 
     def checkforpath(self) -> bool:
@@ -275,11 +275,11 @@ class Lexer:
 
         if slash_count > 1:
             self.reverse(iterations)
-            lexer_logger.debug("Successfully detected path")
+#            lexer_logger.debug("Successfully detected path")
             return True
         else:
             self.reverse(iterations)
-            lexer_logger.debug("No Path found")
+#            lexer_logger.debug("No Path found")
             return False
 
     def checkforfile(self) -> bool:
@@ -303,15 +303,15 @@ class Lexer:
 
         if file_found is False:
             self.reverse(iterations + 1)
-            lexer_logger.debug("No file found")
+#            lexer_logger.debug("No file found")
             return False
         elif iterations >= 1:
             self.reverse(iterations + 1)
-            lexer_logger.debug("File found")
+#            lexer_logger.debug("File found")
             return True
         else:
             self.reverse(iterations + 1)
-            lexer_logger.debug("No file found")
+#            lexer_logger.debug("No file found")
             return False
 
     ####################
@@ -374,7 +374,7 @@ class Lexer:
             string += self.current_char
             self.advance()
 
-        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
+#        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
         return Token(TT_STR, string)
 
     def make_number(self) -> Token:
@@ -408,10 +408,10 @@ class Lexer:
             self.tokens.append(self.make_file_extension())
             return self.make_file()
         elif dot_count == 0:
-            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
+#            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
             return Token(TT_INT, int(num))
         else:
-            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
+#            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
             return Token(TT_FLOAT, float(num))
 
     def make_ipaddr(self) -> Token:
@@ -433,7 +433,7 @@ class Lexer:
                 ip += self.current_char
                 self.advance()
 
-        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
+#        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
         return Token(TT_IPADDR, ip)
 
     def make_flag(self) -> Token:
@@ -450,7 +450,7 @@ class Lexer:
             flag += self.current_char
             self.advance()
 
-        lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
+#        lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
         return Token(TT_FlAG, flag)
 
     def make_path(self) -> Token:
@@ -481,7 +481,7 @@ class Lexer:
                 path = path[:-iterations]
                 break
 
-        lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
+#        lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
         return Token(TT_PATH, path)
 
     def make_file(self) -> Token:
@@ -501,7 +501,7 @@ class Lexer:
         except IndexError:
             del self.tokens[-1]
 
-        lexer_logger.debug(f"Created TT_FILE with value: '{file_.value}'")
+#        lexer_logger.debug(f"Created TT_FILE with value: '{file_.value}'")
         return file_
 
     def make_file_extension(self) -> Token:
@@ -516,5 +516,5 @@ class Lexer:
             file_extension += self.current_char
             self.advance()
 
-        lexer_logger.debug(f"Created TT_FILE_EXTENSION with value: '{file_extension}'")
+#        lexer_logger.debug(f"Created TT_FILE_EXTENSION with value: '{file_extension}'")
         return Token(TT_FILE_EXTENSION, file_extension)
