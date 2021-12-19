@@ -56,7 +56,8 @@ class Interpreter:
     def visit_CommandNode(self, node):
         
         self.visit(node.node1)
-        self.visit(node.node2)
+        if node.node2 != None:
+            self.visit(node.node2)
 
     def visit_FlagValueNode(self, node):
         

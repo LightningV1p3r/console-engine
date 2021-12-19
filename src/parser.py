@@ -353,6 +353,35 @@ class Parser:
         else:
             return False
 
+    def check_for_standalone_K(self):
+
+        self.advance()
+
+        if self.current_token.type == 'EOF':
+            self.reverse()
+            return True
+        else:
+            self.reverse()
+            return False
+
+    def check_stdaln_KC(self):
+
+        iterations = 0
+
+        self.advance()
+        iterations += 1
+
+        if self.current_token.value in self.keywords:
+            while self.current_token.type != 'EOF' and self.current_token.value in self.keywords:
+                self.advance()
+                iterations += 1
+
+            self.reverse(iterations)
+            return True
+        else:
+            self.reverse(iterations)
+            return False
+
     ####################
     #parsing
     ####################
@@ -393,6 +422,14 @@ class Parser:
         else:
             return None
         
+        if self.check_for_standalone_K() == True:
+            right = None
+            return CommandNode(left, right)
+
+        if self.check_stdaln_KC() == True:
+            right = None
+            return CommandNode(left, right)
+
         self.advance()
             
         if self.current_token.type == 'FLAG':
