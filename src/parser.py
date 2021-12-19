@@ -434,7 +434,7 @@ class Parser:
         res = []
         
         while self.current_token.value in self.keywords:
-            res.append(self.current_token.value)
+            res.append(KeywordNode(self.current_token.value))
             self.advance()
 
         self.reverse()
