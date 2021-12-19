@@ -96,7 +96,7 @@ class TestParser:
 
     def test_C_KCV(self):
         
-        exp_res_str = '(((kywrd + do) + (FILE: file.py)))'
+        exp_res_str = '((((kywrd) + (do)) + (FILE: file.py)))'
 
         lexer_ = lexer.Lexer(C_KCV)
         lex_res = lexer_.tokenize()
@@ -108,7 +108,7 @@ class TestParser:
 
     def test_C_KCDC_C(self):
         
-        exp_res_str = '(((kywrd + do) + (((f) + (t)) + ((i) + (IPADDR: 10.10.7.10)))))'
+        exp_res_str = '((((kywrd) + (do)) + (((f) + (t)) + ((i) + (IPADDR: 10.10.7.10)))))'
 
         lexer_ = lexer.Lexer(C_KCDC_C)
         lex_res = lexer_.tokenize()
@@ -120,7 +120,7 @@ class TestParser:
 
     def test_C_KCDC_S(self):
         
-        exp_res_str = '(((kywrd + do) + (((f) + (STR: flag)) + ((v) + (STR: value)))))'
+        exp_res_str = '((((kywrd) + (do)) + (((f) + (STR: flag)) + ((v) + (STR: value)))))'
 
         lexer_ = lexer.Lexer(C_KCDC_S)
         lex_res = lexer_.tokenize()
@@ -132,7 +132,7 @@ class TestParser:
 
     def test_C_KCF(self):
         
-        exp_res_str = '(((kywrd + do) + (t)))'
+        exp_res_str = '((((kywrd) + (do)) + (t)))'
 
         lexer_ = lexer.Lexer(C_KCF)
         lex_res = lexer_.tokenize()
@@ -144,7 +144,7 @@ class TestParser:
 
     def test_C_KCFVP(self):
         
-        exp_res_str = '(((kywrd + do) + ((t) + (IPADDR: 10.10.7.10))))'
+        exp_res_str = '((((kywrd) + (do)) + ((t) + (IPADDR: 10.10.7.10))))'
 
         lexer_ = lexer.Lexer(C_KCFVP)
         lex_res = lexer_.tokenize()
