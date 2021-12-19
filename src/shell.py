@@ -42,7 +42,7 @@ class Shell:
 
     def prompt_secret(self):
         
-        prefix = f'[🔒]'
+        prefix = f'[⚿]'
         secret = getpass(prefix)
 
         return secret
