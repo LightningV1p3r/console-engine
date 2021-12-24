@@ -18,7 +18,7 @@ LINUX:
 
 1. sudo apt-get update && apt-get install python3, pip3
 2. pip3 install -r requirements.txt
-3. 
+3. python3 /src/shell.py
 
  
 
