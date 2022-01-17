@@ -12,6 +12,13 @@ Console Engine
 
 This is a simple to integrate Shell (_Metasploit like_)
 
+Installation
+---
+
+```
+pip3 install console-engine
+```
+
 Usage
 ---
 
