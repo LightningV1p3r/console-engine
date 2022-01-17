@@ -4,7 +4,7 @@
 
 !!!DISCLAIMER!!!
 ---
-> :warning: **This tool is experimental** ⚠️ : This project currently is in early beta! The tool is extremly unstable, has a lot of unfixed bugs and currently even has no error control. **USAGE AT YOU OWN RISK**! We are currently working on getting everything properly working.
+> ⚠️ **This tool is experimental** ⚠️ : This project currently is in early beta! The tool is extremly unstable, has a lot of unfixed bugs and currently even has no error control. **USAGE AT YOU OWN RISK**! We are currently working on getting everything properly working.
 
 
 Console Engine
