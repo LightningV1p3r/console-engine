@@ -33,7 +33,7 @@ class Interpreter:
         cfg = self.config
 
         self.keywords = list(cfg['keywords'])
-        self.groups = list(cfg['group_assign'])
+#        self.groups = list(cfg['group_assign'])
 
     def visit(self, node):
         method_name = f'visit_{type(node).__name__}'
