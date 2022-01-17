@@ -10,7 +10,7 @@
 Console Engine
 ---
 
-This is a simple to & integrate Shell (_Metasploit like_)
+This is a simple to integrate Shell (_Metasploit like_)
 
 Usage
 ---
