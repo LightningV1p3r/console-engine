@@ -1,7 +1,7 @@
-[![Python application](https://github.com/LightningV1p3r/console-engine/actions/workflows/python-app.yml/badge.svg)](https://github.com/LightningV1p3r/console-engine/actions/workflows/python-app.yml)
-[![PyPI version](https://badge.fury.io/py/console-engine.svg)](https://badge.fury.io/py/console-engine)
 [![PyPI status](https://img.shields.io/pypi/status/ansicolortags.svg)]()
+[![PyPI version](https://badge.fury.io/py/console-engine.svg)](https://badge.fury.io/py/console-engine)
 [![GitHub license](https://badgen.net/github/license/Naereen/Strapdown.js)](https://github.com/LightningV1p3r/console-engine/blob/main/LICENSE.txt)
+[![Python application](https://github.com/LightningV1p3r/console-engine/actions/workflows/python-app.yml/badge.svg)](https://github.com/LightningV1p3r/console-engine/actions/workflows/python-app.yml)
 
 !!!DISCLAIMER!!!
 ---
