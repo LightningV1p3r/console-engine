@@ -20,10 +20,7 @@ class Shell:
         self.banner = banner
         self.keywords = list(self.config['keywords'])
 
-        if header == None:
-            self.header = '>> '
-        else:
-            self.header = header
+        self.header = '>> ' if header is None else header
 
     def prompt(self):
         
@@ -42,16 +39,12 @@ class Shell:
 
     def prompt_secret(self):
         
-        prefix = f'[⚿]'
-        secret = getpass(prefix)
-
-        return secret
+        prefix = '[⚿]'
+        return getpass(prefix)
 
     def prompt_passthrough(self):
         
-        user_input = input(self.header)
-
-        return user_input
+        return input(self.header)
 
     def update_header(self, val):
         self.header = val

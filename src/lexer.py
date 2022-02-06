@@ -80,11 +80,8 @@ class Token:
         self.type = type_
         self.value = value
 
-    def __repr__(self) -> str:
-        if self.value:
-            return f'{self.type}: {self.value}'
-        else:
-            return f'{self.type}'
+    def __repr__(self) -> str: 
+        return f'{self.type}: {self.value}' if self.value else f'{self.type}'
 
 
 ####################
@@ -120,14 +117,7 @@ class Lexer:
         while iter_count < iterations:
 
             self.pos += 1
-
-            if self.pos < len(self.text):
-                self.current_char = self.text[self.pos]
-#                lexer_logger.debug(f"Advanced to pos {self.pos} with value: '{self.current_char}'")
-
-            else:
-                self.current_char = None
-
+            self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
             iter_count += 1
 
     def reverse(self, iterations=1) -> None:
@@ -238,21 +228,13 @@ class Lexer:
                 if dot_count == 3:
                     break
                 dot_count += 1
-                iterations += 1
-                self.advance()
+            
+            iterations += 1
+            self.advance()
+        
+        self.reverse(iterations)
+        return dot_count > 1 
 
-            else:
-                iterations += 1
-                self.advance()
-
-        if dot_count > 1:
-            self.reverse(iterations)
-#            lexer_logger.debug("Successfully detected IP")
-            return True
-        else:
-            self.reverse(iterations)
-#            lexer_logger.debug("No IP found")
-            return False
 
     def checkforpath(self) -> bool:
 
@@ -267,20 +249,12 @@ class Lexer:
                 if slash_count == 2:
                     break
                 slash_count += 1
-                self.advance()
-                iterations += 1
-            else:
-                self.advance()
-                iterations += 1
+            
+            self.advance()
+            iterations += 1
 
-        if slash_count > 1:
-            self.reverse(iterations)
-#            lexer_logger.debug("Successfully detected path")
-            return True
-        else:
-            self.reverse(iterations)
-#            lexer_logger.debug("No Path found")
-            return False
+        self.reverse(iterations)
+        return slash_count > 1
 
     def checkforfile(self) -> bool:
 
@@ -301,38 +275,22 @@ class Lexer:
             self.advance()
             iterations += 1
 
-        if file_found is False:
-            self.reverse(iterations + 1)
-#            lexer_logger.debug("No file found")
-            return False
-        elif iterations >= 1:
-            self.reverse(iterations + 1)
-#            lexer_logger.debug("File found")
-            return True
-        else:
-            self.reverse(iterations + 1)
-#            lexer_logger.debug("No file found")
-            return False
-
+        self.reverse(iterations + 1)
+        return file_found and iterations >= 1
+   
     ####################
     # handlers
     ####################
 
     def handle_digit(self) -> Token:
-
-        res = self.checkforip()
-
-        if res is True:
-            return self.make_ipaddr()
-        else:
-            return self.make_number()
+        return self.make_ipaddr() if (res := self.checkforip()) else self.make_number()
 
     def handle_minus(self) -> Token:
 
         self.advance()
         if self.current_char != None and self.current_char not in ' \t':
             self.advance()
-            if self.current_char == None or self.current_char in ' \t': 
+            if self.current_char is None or self.current_char in ' \t': 
                 self.reverse()
                 return self.make_flag()
         else:
@@ -345,9 +303,9 @@ class Lexer:
         res = self.checkforpath()
         if res is True:
             return self.make_path()
-        else:
-            self.advance()
-            return Token(TT_SLASH)
+
+        self.advance()
+        return Token(TT_SLASH)
 
     def handle_dot(self):
 
@@ -403,7 +361,7 @@ class Lexer:
             else:
                 num += self.current_char
                 self.advance()
-        if is_file is True:
+        if is_file:
             self.tokens.append(Token(TT_INT, int(num)))
             self.tokens.append(self.make_file_extension())
             return self.make_file()
@@ -428,10 +386,10 @@ class Lexer:
                     break
                 dot_count += 1
                 ip += '.'
-                self.advance()
             else:
                 ip += self.current_char
-                self.advance()
+            
+            self.advance()
 
 #        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
         return Token(TT_IPADDR, ip)

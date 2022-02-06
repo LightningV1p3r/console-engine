@@ -16,11 +16,9 @@ class ExpressionNode:
     def as_string(self) -> str:
         
         res = '('
-        iterations = 0
 
-        for i in self.list:
+        for iterations, i in enumerate(self.list, start=1):
             res += str(i)
-            iterations += 1
 
             if iterations < len(self.list):
                 res += ' + '
@@ -41,10 +39,8 @@ class CommandNode:
         self.node1 = node1
         self.node2 = node2
 
-    def as_string(self) -> str:
-        
-        res = f'({self.node1} + {self.node2})'
-        return res
+    def as_string(self) -> str:       
+        return f'({self.node1} + {self.node2})'
 
     def __str__(self) -> str:
         return self.as_string()
@@ -59,10 +55,8 @@ class FlagValueNode:
         self.node1 = node1
         self.node2 = node2
 
-    def as_string(self) -> str:
-        
-        res = f'({self.node1} + {self.node2})'
-        return res
+    def as_string(self) -> str:      
+        return f'({self.node1} + {self.node2})'
 
     def __str__(self) -> str:
         return self.as_string()
@@ -79,11 +73,9 @@ class KeywordChainNode:
     def as_string(self) -> str:
         
         res = '('
-        iterations = 0
 
-        for i in self.list:
+        for iterations, i in enumerate(self.list, start=1):
             res += str(i)
-            iterations += 1
 
             if iterations < len(self.list):
                 res += ' + '
@@ -107,11 +99,9 @@ class DataChainNode:
     def as_string(self) -> str:
         
         res = '('
-        iterations = 0
 
-        for i in self.list:
+        for iterations, i in enumerate(self.list, start=1):
             res += str(i)
-            iterations += 1
 
             if iterations < len(self.list):
                 res += ' + '
@@ -134,11 +124,9 @@ class FlagChainNode:
     def as_string(self) -> str:
         
         res = '('
-        iterations = 0
 
-        for i in self.list:
+        for iterations, i in enumerate(self.list, start=1):
             res += str(i)
-            iterations += 1
 
             if iterations < len(self.list):
                 res += ' + '
@@ -162,10 +150,8 @@ class KeywordNode:
     def __init__(self, value) -> None:
         self.value = value
 
-    def as_string(self) -> str:
-        
-        res = f'({self.value})'
-        return res
+    def as_string(self) -> str: 
+        return f'({self.value})'
 
     def __str__(self) -> str:
         return self.as_string()
@@ -180,9 +166,7 @@ class FlagNode:
         self.value = value
 
     def as_string(self) -> str:
-        
-        res = f'({self.value})'
-        return res
+        return f'({self.value})'
 
     def __str__(self) -> str:
         return self.as_string()
@@ -196,10 +180,8 @@ class ValueNode:
     def __init__(self, value) -> None:
         self.value = value
 
-    def as_string(self) -> str:
-        
-        res = f'({self.value})'
-        return res
+    def as_string(self) -> str:      
+        return f'({self.value})'
     
     def __str__(self) -> str:
         return self.as_string()
@@ -255,43 +237,32 @@ class Parser:
 
         while self.current_token.value in self.keywords:
             
-            if self.current_token.value in self.keywords:
-                keyword_count += 1
+            keyword_count += 1
             iterations += 1
             self.advance()
 
         self.reverse(iterations)
 
-        if keyword_count > 1:
-
-            return True
-        else: 
-            return False
+        return keyword_count > 1
 
     def check_for_fvp(self):
 
-        if self.current_token != None:
-            if self.current_token.type != 'EOF':
-        
-                if self.current_token.type == 'FLAG':
-                    self.advance()
-
-                    if self.current_token.type != 'FLAG' and self.current_token.type != 'EOF':
-                        self.reverse()
-                        return True
-                    else:
-                        self.reverse()
-                        return False
-                else:
-                    return False
-            else:
-                return False
-        else:
+        if self.current_token is None:
             return False
+        if self.current_token.type == 'EOF' or self.current_token.type != 'FLAG':
+            return False
+        self.advance()
+
+        if self.current_token.type not in ['FLAG', 'EOF']:
+            self.reverse()
+            return True
+        else:
+            self.reverse()
+            return False
+
 
     def check_for_dc_complex(self):
 
-        flag_chain = False
         fvp = False
 
         flags = 0
@@ -304,15 +275,14 @@ class Parser:
 
         self.reverse()
 
-        if self.check_for_fvp() == True:
-            fvp = True
-
+        fvp = self.check_for_fvp() == True
         self.reverse(iterations -1)
 
-        if flags >= 2 and fvp == True:
+        if flags >= 2 and fvp:
             flag_chain = True
 
-        if flag_chain == True and fvp == True:
+        flag_chain = flags >= 2 and fvp
+        if flag_chain and fvp:
 
             return True, flags - 1
         else:
@@ -321,19 +291,18 @@ class Parser:
 
     def check_for_dc_simple(self):
 
-        iterations = 0
+        if self.check_for_fvp() != True:
+            return False
+
+        self.advance()
+        self.advance()
+        iterations = 0 + 2
 
         if self.check_for_fvp() == True:
-            self.advance()
-            self.advance()
-            iterations += 2
-            if self.check_for_fvp() == True:
-                self.reverse(iterations)
-                return True
-            else:
-                self.reverse(iterations)
-                return False
+            self.reverse(iterations)
+            return True
         else:
+            self.reverse(iterations)
             return False
 
     def check_for_fc(self):
@@ -347,11 +316,7 @@ class Parser:
             self.advance()
         
         self.reverse(iterations)
-
-        if flag_count > 1:
-            return True, flag_count
-        else:
-            return False
+        return (True, flag_count) if flag_count > 1 else False
 
     def check_for_standalone_K(self):
 
@@ -366,10 +331,8 @@ class Parser:
 
     def check_stdaln_KC(self):
 
-        iterations = 0
-
         self.advance()
-        iterations += 1
+        iterations = 0 + 1
 
         if self.current_token.value in self.keywords:
             while self.current_token.type != 'EOF' and self.current_token.value in self.keywords:
@@ -392,28 +355,25 @@ class Parser:
 
     def expression(self):
 
-        res = []
+        if self.current_token is None:
+            return
 
-        if self.current_token != None:
-        
-            res.append(self.command())
-            self.advance()
+        res = [self.command()]
 
-            while True:
-                if self.current_token == None or self.current_token.type == 'EOF':
-                    break
+        self.advance()
 
+        while True:
+            if self.current_token is None or self.current_token.type == 'EOF':
+                break
+
+            if self.current_token.type == 'AMPERSAND':
+                self.advance()
                 if self.current_token.type == 'AMPERSAND':
                     self.advance()
-                    if self.current_token.type == 'AMPERSAND':
-                        self.advance()
-                        res.append(self.command())
-                    else:
-                        res.append(self.command())
+                res.append(self.command())
+            self.advance()
 
-                self.advance()
-
-            return ExpressionNode(res)
+        return ExpressionNode(res)
 
     def command(self):
 
@@ -458,13 +418,13 @@ class Parser:
 
     def keyword(self):
 
-        if self.current_token.value in self.keywords:
-            if self.check_for_kc() == True:
-                return self.keyword_chain()
-            else:
-                return KeywordNode(self.current_token.value)
-        else:
+        if self.current_token.value not in self.keywords:
             return None
+
+        if self.check_for_kc() == True:
+            return self.keyword_chain()
+        else:
+            return KeywordNode(self.current_token.value)
 
     def keyword_chain(self):
 
@@ -497,18 +457,18 @@ class Parser:
         if mode == 'complex':
             res.append(self.flag_chain('counter',flag_count))
         while True:
-            if self.check_for_fvp() == True:
-                res.append(self.flag_value_pair())
-                self.advance()
-            else:
+            if self.check_for_fvp() != True:
                 break
+            res.append(self.flag_value_pair())
+            self.advance()
+
         return DataChainNode(res)
 
     def flag_chain(self, mode, flag_count):
 
         res = []
-        iterations = 0
         if mode == 'counter':
+            iterations = 0
             while iterations < flag_count:
                 iterations += 1
                 res.append(self.flag())

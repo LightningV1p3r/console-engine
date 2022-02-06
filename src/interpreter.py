@@ -61,16 +61,16 @@ class Interpreter:
 
     def visit_FlagValueNode(self, node):
         
-        if self.instruction_set['group'] != None:
+        if self.instruction_set['group'] is not None:
             method = self.config['group_assign'][self.instruction_set['group']][self.instruction_set['idx']]
         else:
             method = self.config['methods'][self.instruction_set['idx']]
 
         if node.node1.value in list(method['arguments']['flags']):
             type =  method['arguments']['flags'][node.node1.value]['type']
-            idx = method['arguments']['flags'][node.node1.value]['idx']
 
             if node.node2.value.type == type:
+                idx = method['arguments']['flags'][node.node1.value]['idx']
                 self.instruction_set['data'][idx] = node.node2.value.value
 
     def visit_KeywordChainNode(self, node):
@@ -99,18 +99,17 @@ class Interpreter:
 
     def visit_FlagNode(self, node):
         
-        if self.instruction_set['group'] != None:
+        if self.instruction_set['group'] is not None:
             method = self.config['group_assign'][self.instruction_set['group']][self.instruction_set['idx']]
         else:
             method = self.config['methods'][self.instruction_set['idx']]
 
-        if node.value in list(method['arguments']['flags']):
-            if method['arguments']['flags'][node.value]['type'] == 'bool':
-                self.instruction_set['data'][method['arguments']['flags'][node.value]['idx']] = True
+        if node.value in list(method['arguments']['flags']) and  method['arguments']['flags'][node.value]['type'] == 'bool':
+           self.instruction_set['data'][method['arguments']['flags'][node.value]['idx']] = True
 
     def visit_ValueNode(self, node):
         
-        if self.instruction_set['group'] != None:
+        if self.instruction_set['group'] is not None:
             method = self.config['group_assign'][self.instruction_set['group']][self.instruction_set['idx']]
         else:
             method = self.config['methods'][self.instruction_set['idx']]
