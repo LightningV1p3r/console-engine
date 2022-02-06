@@ -1,5 +1,5 @@
 colorama==0.4.4
 DateTime==4.3
 pytz==2021.1
-viperlogger==1.0.1
+viperlogger==0.1.1
 zope.interface==5.4.0
