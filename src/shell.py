@@ -1,29 +1,29 @@
 # Copyright (c) 2021 LightningV1p3r
 
 ####################
-#Libs
+# Libs
 ####################
 
-from . import lexer,parser,interpreter
+from . import lexer, parser, interpreter
 
 import colorama
 import getpass
 
 ####################
-#Shell
+# Shell
 ####################
 
-class Shell:
 
+class Shell:
     def __init__(self, config, header=None, banner=None) -> None:
         self.config = config
         self.banner = banner
-        self.keywords = list(self.config['keywords'])
+        self.keywords = list(self.config["keywords"])
 
-        self.header = '>> ' if header is None else header
+        self.header = ">> " if header is None else header
 
     def prompt(self):
-        
+
         user_input = input(self.header)
 
         lexer_ = lexer.Lexer(user_input)
@@ -38,27 +38,27 @@ class Shell:
         return inst, count
 
     def prompt_secret(self):
-        
-        prefix = '[⚿]'
+
+        prefix = "[⚿]"
         return getpass(prefix)
 
     def prompt_passthrough(self):
-        
+
         return input(self.header)
 
     def update_header(self, val):
         self.header = val
 
     def out(self, output, prefix=None):
-        
-        if prefix == 'sucess':
-            out = f'[{colorama.Fore.GREEN}✓{colorama.Fore.RESET}]'
+
+        if prefix == "sucess":
+            out = f"[{colorama.Fore.GREEN}✓{colorama.Fore.RESET}]"
             print(out)
-        elif prefix == 'warning':
-            out =  f'[{colorama.Fore.YELLOW}⚠{colorama.Fore.RESET}]'
+        elif prefix == "warning":
+            out = f"[{colorama.Fore.YELLOW}⚠{colorama.Fore.RESET}]"
             print(out)
-        elif prefix == 'failed':
-            out = f'[{colorama.Fore.RED}✖{colorama.Fore.RESET}]'
+        elif prefix == "failed":
+            out = f"[{colorama.Fore.RED}✖{colorama.Fore.RESET}]"
             print(out)
         else:
             print(output)

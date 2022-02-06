@@ -4,21 +4,21 @@
 # Libs
 ####################
 
-#import viperlogger
+# import viperlogger
 
 ####################
 # Logger
 ####################
 
-#lexer_logger = viperlogger.Logger("Lexer")
-#lexer_logger.enable_debugmode('True')
+# lexer_logger = viperlogger.Logger("Lexer")
+# lexer_logger.enable_debugmode('True')
 
 ####################
 # Constants
 ####################
 
-LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-DIGITS = '0123456789'
+LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+DIGITS = "0123456789"
 
 ####################
 # Errors
@@ -26,7 +26,6 @@ DIGITS = '0123456789'
 
 
 class Error:
-
     def __init__(self, name, details) -> None:
         self.name = name
         self.details = details
@@ -36,35 +35,34 @@ class Error:
 
 
 class IllegalCharError(Error):
-
     def __init__(self, details) -> None:
-        super().__init__('Illgal Character', details)
+        super().__init__("Illgal Character", details)
 
 
 ####################
 # Tokens
 ####################
 
-TT_STR = 'STR'
-TT_INT = 'INT'
-TT_DOT = 'DOT'
-TT_EOF = 'EOF'
-TT_PLUS = 'PLUS'
-TT_BANG = 'BANG'
-TT_FILE = 'FILE'
-TT_FlAG = 'FLAG'
-TT_PATH = 'PATH'
-TT_SLASH = 'SLASH'
-TT_FLOAT = 'FLOAT'
-TT_MINUS = 'MINUS'
-TT_SHARP = 'SHARP'
-TT_QUOTE = 'QUOTE'
-TT_IPADDR = 'IPADDR'
-TT_ASTERISK = 'ASTERISK'
-TT_AMPERSAND = 'AMPERSAND'
-TT_UNDERSCORE = 'UNDERSCORE'
-TT_DOUBLE_QUOTE = 'DOUBLE_QUOTE'
-TT_FILE_EXTENSION = 'FILE_EXTENSION'
+TT_STR = "STR"
+TT_INT = "INT"
+TT_DOT = "DOT"
+TT_EOF = "EOF"
+TT_PLUS = "PLUS"
+TT_BANG = "BANG"
+TT_FILE = "FILE"
+TT_FlAG = "FLAG"
+TT_PATH = "PATH"
+TT_SLASH = "SLASH"
+TT_FLOAT = "FLOAT"
+TT_MINUS = "MINUS"
+TT_SHARP = "SHARP"
+TT_QUOTE = "QUOTE"
+TT_IPADDR = "IPADDR"
+TT_ASTERISK = "ASTERISK"
+TT_AMPERSAND = "AMPERSAND"
+TT_UNDERSCORE = "UNDERSCORE"
+TT_DOUBLE_QUOTE = "DOUBLE_QUOTE"
+TT_FILE_EXTENSION = "FILE_EXTENSION"
 
 
 class Token:
@@ -73,20 +71,20 @@ class Token:
 
     Returns:
         Token Type: Type of the Token.
-        Value: Value of the token.
-"""
+        Value: Value of the token."""
 
     def __init__(self, type_, value=None) -> None:
         self.type = type_
         self.value = value
 
-    def __repr__(self) -> str: 
-        return f'{self.type}: {self.value}' if self.value else f'{self.type}'
+    def __repr__(self) -> str:
+        return f"{self.type}: {self.value}" if self.value else f"{self.type}"
 
 
 ####################
 # Lexer
 ####################
+
 
 class Lexer:
 
@@ -94,10 +92,10 @@ class Lexer:
 
     def __init__(self, text) -> None:
 
-#        lexer_logger.debug("""
-#============================== Tokenizing START ==============================""")
-#
- #       lexer_logger.debug(f"To tokenize: '{text}'")
+        #        lexer_logger.debug("""
+        # ============================== Tokenizing START ==============================""")
+        #
+        #       lexer_logger.debug(f"To tokenize: '{text}'")
         self.text = text
         self.pos = -1
         self.current_char = None
@@ -117,7 +115,9 @@ class Lexer:
         while iter_count < iterations:
 
             self.pos += 1
-            self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+            self.current_char = (
+                self.text[self.pos] if self.pos < len(self.text) else None
+            )
             iter_count += 1
 
     def reverse(self, iterations=1) -> None:
@@ -132,10 +132,10 @@ class Lexer:
 
             if self.pos < 0:
                 self.pos += 1
-#                lexer_logger.error('Failed to reverse pos due to invalid index!')
+            #                lexer_logger.error('Failed to reverse pos due to invalid index!')
             else:
                 self.current_char = self.text[self.pos]
- #               lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
+            #               lexer_logger.debug(f"Reversed to pos {self.pos} with value: '{self.current_char}'")
 
             iter_count += 1
 
@@ -149,7 +149,7 @@ class Lexer:
         else:
             res_value = str(val1) + str(val2)
 
-#        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
+        #        lexer_logger.debug(f"Merged Tokens '{tok1}', '{tok2}' to Token with value: '{res_value}'")
         return Token(res_tok_type, res_value)
 
     def tokenize(self) -> list:
@@ -162,52 +162,52 @@ class Lexer:
 
         while self.current_char is not None:
 
-            if self.current_char in ' \t':
+            if self.current_char in " \t":
                 self.advance()
             elif self.current_char in LETTERS:
                 self.tokens.append(self.make_string())
             elif self.current_char in DIGITS:
                 self.tokens.append(self.handle_digit())
-            elif self.current_char == '-':
+            elif self.current_char == "-":
                 self.tokens.append(self.handle_minus())
-            elif self.current_char == '+':
+            elif self.current_char == "+":
                 self.tokens.append(Token(TT_PLUS))
                 self.advance()
-            elif self.current_char == '/':
+            elif self.current_char == "/":
                 self.tokens.append(self.handle_slash())
-            elif self.current_char == '*':
+            elif self.current_char == "*":
                 self.tokens.append(Token(TT_ASTERISK))
                 self.advance()
-            elif self.current_char == '.':
+            elif self.current_char == ".":
                 self.tokens.append(self.handle_dot())
-            elif self.current_char == '!':
+            elif self.current_char == "!":
                 self.tokens.append(Token(TT_BANG))
                 self.advance()
-            elif self.current_char == '#':
+            elif self.current_char == "#":
                 self.tokens.append(Token(TT_SHARP))
                 self.advance()
             elif self.current_char == "'":
                 self.tokens.append(Token(TT_QUOTE))
                 self.advance()
-            elif self.current_char == '&':
+            elif self.current_char == "&":
                 self.tokens.append(Token(TT_AMPERSAND))
                 self.advance()
-            elif self.current_char == '_':
+            elif self.current_char == "_":
                 self.tokens.append(Token(TT_UNDERSCORE))
                 self.advance()
             elif self.current_char == '"':
                 self.tokens.append(Token(TT_DOUBLE_QUOTE))
                 self.advance()
             else:
-#                lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
+                #                lexer_logger.error(f"Illegal Character '{self.current_char}' at pos: {self.pos}")
                 return IllegalCharError(f"'{self.current_char}' at pos: {self.pos}")
 
         self.tokens.append(Token(TT_EOF))
 
-#        lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
-#        lexer_logger.debug("""
-#============================== Tokenizing END ==============================\n
-#""")
+        #        lexer_logger.debug(f"Finished tokenizing process for text: '{self.text}'")
+        #        lexer_logger.debug("""
+        # ============================== Tokenizing END ==============================\n
+        # """)
 
         return self.tokens
 
@@ -222,19 +222,18 @@ class Lexer:
         iterations = 0
         dot_count = 0
 
-        while self.current_char is not None and self.current_char in DIGITS + '.':
+        while self.current_char is not None and self.current_char in DIGITS + ".":
 
-            if self.current_char == '.':
+            if self.current_char == ".":
                 if dot_count == 3:
                     break
                 dot_count += 1
-            
+
             iterations += 1
             self.advance()
-        
-        self.reverse(iterations)
-        return dot_count > 1 
 
+        self.reverse(iterations)
+        return dot_count > 1
 
     def checkforpath(self) -> bool:
 
@@ -243,13 +242,16 @@ class Lexer:
         iterations = 0
         slash_count = 0
 
-        while self.current_char is not None and self.current_char in LETTERS + DIGITS + '/':
+        while (
+            self.current_char is not None
+            and self.current_char in LETTERS + DIGITS + "/"
+        ):
 
-            if self.current_char == '/':
+            if self.current_char == "/":
                 if slash_count == 2:
                     break
                 slash_count += 1
-            
+
             self.advance()
             iterations += 1
 
@@ -261,9 +263,12 @@ class Lexer:
         iterations = -1
         file_found = bool()
 
-        while self.current_char is not None and self.current_char in LETTERS + DIGITS + '.':
+        while (
+            self.current_char is not None
+            and self.current_char in LETTERS + DIGITS + "."
+        ):
 
-            if self.current_char in ' \t':
+            if self.current_char in " \t":
                 break
 
             elif self.current_char in DIGITS:
@@ -277,7 +282,7 @@ class Lexer:
 
         self.reverse(iterations + 1)
         return file_found and iterations >= 1
-   
+
     ####################
     # handlers
     ####################
@@ -288,9 +293,9 @@ class Lexer:
     def handle_minus(self) -> Token:
 
         self.advance()
-        if self.current_char != None and self.current_char not in ' \t':
+        if self.current_char != None and self.current_char not in " \t":
             self.advance()
-            if self.current_char is None or self.current_char in ' \t': 
+            if self.current_char is None or self.current_char in " \t":
                 self.reverse()
                 return self.make_flag()
         else:
@@ -325,34 +330,34 @@ class Lexer:
 
         """Generates a Token of Type String."""
 
-        string = ''
+        string = ""
 
         while self.current_char is not None and self.current_char in LETTERS:
 
             string += self.current_char
             self.advance()
 
-#        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
+        #        lexer_logger.debug(f"Generated TT_STR with value: '{string}'")
         return Token(TT_STR, string)
 
     def make_number(self) -> Token:
 
         """Generates Token of Type Integer."""
 
-        num = ''
+        num = ""
         dot_count = 0
         is_file = False
 
-        while self.current_char is not None and self.current_char in DIGITS + '.':
+        while self.current_char is not None and self.current_char in DIGITS + ".":
 
-            if self.current_char == '.':
+            if self.current_char == ".":
                 if dot_count == 1:
                     break
                 file_res = self.checkforfile()
 
                 if file_res is False:
                     dot_count += 1
-                    num += '.'
+                    num += "."
                     self.advance()
                 else:
                     is_file = True
@@ -366,69 +371,72 @@ class Lexer:
             self.tokens.append(self.make_file_extension())
             return self.make_file()
         elif dot_count == 0:
-#            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
+            #            lexer_logger.debug(f"Generated TT_INT with value: '{num}'")
             return Token(TT_INT, int(num))
         else:
-#            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
+            #            lexer_logger.debug(f"Generated TT_FLOAT with value: '{num}'")
             return Token(TT_FLOAT, float(num))
 
     def make_ipaddr(self) -> Token:
 
         """Generates Token of Type IP Addr."""
 
-        ip = ''
+        ip = ""
         dot_count = 0
 
-        while self.current_char is not None and self.current_char in DIGITS + '.':
+        while self.current_char is not None and self.current_char in DIGITS + ".":
 
-            if self.current_char == '.':
+            if self.current_char == ".":
                 if dot_count == 3:
                     break
                 dot_count += 1
-                ip += '.'
+                ip += "."
             else:
                 ip += self.current_char
-            
+
             self.advance()
 
-#        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
+        #        lexer_logger.debug(f"Generated TT_IPADDR with value: '{ip}'")
         return Token(TT_IPADDR, ip)
 
     def make_flag(self) -> Token:
 
         """Generates Token of Type Flag."""
 
-        flag = ''
+        flag = ""
 
         while self.current_char is not None and self.current_char in LETTERS:
 
-            if self.current_char in ' \t':
+            if self.current_char in " \t":
                 break
 
             flag += self.current_char
             self.advance()
 
-#        lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
+        #        lexer_logger.debug(f"Created TT_FLAG with value: '{flag}'")
         return Token(TT_FlAG, flag)
 
     def make_path(self) -> Token:
 
         """Generates Token of Type Path."""
 
-        path = ''
+        path = ""
 
-        while self.current_char is not None and self.current_char in LETTERS + DIGITS + '/':
+        while (
+            self.current_char is not None
+            and self.current_char in LETTERS + DIGITS + "/"
+        ):
 
             path += self.current_char
             self.advance()
 
-            if self.current_char == '.':
+            if self.current_char == ".":
 
                 iterations = 0
 
                 while True:
 
-                    if self.current_char == '/':
+                    if self.current_char == "/":
                         iterations -= 1
                         self.advance()
                         break
@@ -439,7 +447,7 @@ class Lexer:
                 path = path[:-iterations]
                 break
 
-#        lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
+        #        lexer_logger.debug(f"Created TT_PATH with value: '{path}'")
         return Token(TT_PATH, path)
 
     def make_file(self) -> Token:
@@ -459,20 +467,23 @@ class Lexer:
         except IndexError:
             del self.tokens[-1]
 
-#        lexer_logger.debug(f"Created TT_FILE with value: '{file_.value}'")
+        #        lexer_logger.debug(f"Created TT_FILE with value: '{file_.value}'")
         return file_
 
     def make_file_extension(self) -> Token:
 
-        file_extension = ''
+        file_extension = ""
 
-        while self.current_char is not None and self.current_char in LETTERS + DIGITS + '.':
+        while (
+            self.current_char is not None
+            and self.current_char in LETTERS + DIGITS + "."
+        ):
 
-            if self.current_char in ' \t':
+            if self.current_char in " \t":
                 break
 
             file_extension += self.current_char
             self.advance()
 
-#        lexer_logger.debug(f"Created TT_FILE_EXTENSION with value: '{file_extension}'")
+        #        lexer_logger.debug(f"Created TT_FILE_EXTENSION with value: '{file_extension}'")
         return Token(TT_FILE_EXTENSION, file_extension)

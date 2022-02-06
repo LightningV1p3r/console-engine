@@ -1,29 +1,29 @@
 # Copyright (c) 2021 LightningV1p3r
 
 ####################
-#Nodes
+# Nodes
 ####################
 
-    ####################
-    #Non Terminals
-    ####################
+####################
+# Non Terminals
+####################
+
 
 class ExpressionNode:
-
     def __init__(self, list) -> None:
         self.list = list
 
     def as_string(self) -> str:
-        
-        res = '('
+
+        res = "("
 
         for iterations, i in enumerate(self.list, start=1):
             res += str(i)
 
             if iterations < len(self.list):
-                res += ' + '
-        
-        res += ')'
+                res += " + "
+
+        res += ")"
 
         return res
 
@@ -33,14 +33,14 @@ class ExpressionNode:
     def __repr__(self) -> str:
         return self.as_string()
 
-class CommandNode:
 
+class CommandNode:
     def __init__(self, node1, node2) -> None:
         self.node1 = node1
         self.node2 = node2
 
-    def as_string(self) -> str:       
-        return f'({self.node1} + {self.node2})'
+    def as_string(self) -> str:
+        return f"({self.node1} + {self.node2})"
 
     def __str__(self) -> str:
         return self.as_string()
@@ -50,13 +50,12 @@ class CommandNode:
 
 
 class FlagValueNode:
-
     def __init__(self, node1, node2) -> None:
         self.node1 = node1
         self.node2 = node2
 
-    def as_string(self) -> str:      
-        return f'({self.node1} + {self.node2})'
+    def as_string(self) -> str:
+        return f"({self.node1} + {self.node2})"
 
     def __str__(self) -> str:
         return self.as_string()
@@ -66,21 +65,20 @@ class FlagValueNode:
 
 
 class KeywordChainNode:
-
     def __init__(self, list) -> None:
         self.list = list
 
     def as_string(self) -> str:
-        
-        res = '('
+
+        res = "("
 
         for iterations, i in enumerate(self.list, start=1):
             res += str(i)
 
             if iterations < len(self.list):
-                res += ' + '
-        
-        res += ')'
+                res += " + "
+
+        res += ")"
 
         return res
 
@@ -92,21 +90,20 @@ class KeywordChainNode:
 
 
 class DataChainNode:
-
     def __init__(self, list) -> None:
         self.list = list
 
     def as_string(self) -> str:
-        
-        res = '('
+
+        res = "("
 
         for iterations, i in enumerate(self.list, start=1):
             res += str(i)
 
             if iterations < len(self.list):
-                res += ' + '
-        
-        res += ')'
+                res += " + "
+
+        res += ")"
 
         return res
 
@@ -115,23 +112,23 @@ class DataChainNode:
 
     def __repr__(self) -> str:
         return self.as_string()
+
 
 class FlagChainNode:
-
     def __init__(self, list) -> None:
         self.list = list
 
     def as_string(self) -> str:
-        
-        res = '('
+
+        res = "("
 
         for iterations, i in enumerate(self.list, start=1):
             res += str(i)
 
             if iterations < len(self.list):
-                res += ' + '
-        
-        res += ')'
+                res += " + "
+
+        res += ")"
 
         return res
 
@@ -140,18 +137,18 @@ class FlagChainNode:
 
     def __repr__(self) -> str:
         return self.as_string()
- 
+
     ####################
-    #Terminals
+    # Terminals
     ####################
+
 
 class KeywordNode:
-
     def __init__(self, value) -> None:
         self.value = value
 
-    def as_string(self) -> str: 
-        return f'({self.value})'
+    def as_string(self) -> str:
+        return f"({self.value})"
 
     def __str__(self) -> str:
         return self.as_string()
@@ -161,12 +158,11 @@ class KeywordNode:
 
 
 class FlagNode:
-
     def __init__(self, value) -> None:
         self.value = value
 
     def as_string(self) -> str:
-        return f'({self.value})'
+        return f"({self.value})"
 
     def __str__(self) -> str:
         return self.as_string()
@@ -176,25 +172,25 @@ class FlagNode:
 
 
 class ValueNode:
-
     def __init__(self, value) -> None:
         self.value = value
 
-    def as_string(self) -> str:      
-        return f'({self.value})'
-    
+    def as_string(self) -> str:
+        return f"({self.value})"
+
     def __str__(self) -> str:
         return self.as_string()
 
     def __repr__(self) -> str:
         return self.as_string()
 
+
 ####################
-#Parser
+# Parser
 ####################
+
 
 class Parser:
-
     def __init__(self, tokens, keywords) -> None:
         self.tokens = tokens
         self.keywords = keywords
@@ -203,7 +199,7 @@ class Parser:
         self.advance()
 
     def advance(self) -> None:
-        
+
         self.pos += 1
 
         if self.pos < len(self.tokens):
@@ -227,7 +223,7 @@ class Parser:
             iter_count += 1
 
     ####################
-    #Checker
+    # Checker
     ####################
 
     def check_for_kc(self):
@@ -236,7 +232,7 @@ class Parser:
         keyword_count = 0
 
         while self.current_token.value in self.keywords:
-            
+
             keyword_count += 1
             iterations += 1
             self.advance()
@@ -249,17 +245,16 @@ class Parser:
 
         if self.current_token is None:
             return False
-        if self.current_token.type == 'EOF' or self.current_token.type != 'FLAG':
+        if self.current_token.type == "EOF" or self.current_token.type != "FLAG":
             return False
         self.advance()
 
-        if self.current_token.type not in ['FLAG', 'EOF']:
+        if self.current_token.type not in ["FLAG", "EOF"]:
             self.reverse()
             return True
         else:
             self.reverse()
             return False
-
 
     def check_for_dc_complex(self):
 
@@ -268,7 +263,7 @@ class Parser:
         flags = 0
         iterations = 0
 
-        while self.current_token.type == 'FLAG':
+        while self.current_token.type == "FLAG":
             flags += 1
             iterations += 1
             self.advance()
@@ -276,7 +271,7 @@ class Parser:
         self.reverse()
 
         fvp = self.check_for_fvp() == True
-        self.reverse(iterations -1)
+        self.reverse(iterations - 1)
 
         if flags >= 2 and fvp:
             flag_chain = True
@@ -306,15 +301,15 @@ class Parser:
             return False
 
     def check_for_fc(self):
-        
+
         iterations = 0
         flag_count = 0
 
-        while self.current_token.type == 'FLAG':
+        while self.current_token.type == "FLAG":
             flag_count += 1
             iterations += 1
             self.advance()
-        
+
         self.reverse(iterations)
         return (True, flag_count) if flag_count > 1 else False
 
@@ -322,7 +317,7 @@ class Parser:
 
         self.advance()
 
-        if self.current_token.type == 'EOF':
+        if self.current_token.type == "EOF":
             self.reverse()
             return True
         else:
@@ -335,7 +330,10 @@ class Parser:
         iterations = 0 + 1
 
         if self.current_token.value in self.keywords:
-            while self.current_token.type != 'EOF' and self.current_token.value in self.keywords:
+            while (
+                self.current_token.type != "EOF"
+                and self.current_token.value in self.keywords
+            ):
                 self.advance()
                 iterations += 1
 
@@ -346,12 +344,11 @@ class Parser:
             return False
 
     ####################
-    #parsing
+    # parsing
     ####################
 
     def parse(self):
         return self.expression()
-
 
     def expression(self):
 
@@ -363,12 +360,12 @@ class Parser:
         self.advance()
 
         while True:
-            if self.current_token is None or self.current_token.type == 'EOF':
+            if self.current_token is None or self.current_token.type == "EOF":
                 break
 
-            if self.current_token.type == 'AMPERSAND':
+            if self.current_token.type == "AMPERSAND":
                 self.advance()
-                if self.current_token.type == 'AMPERSAND':
+                if self.current_token.type == "AMPERSAND":
                     self.advance()
                 res.append(self.command())
             self.advance()
@@ -381,7 +378,7 @@ class Parser:
             left = self.keyword()
         else:
             return None
-        
+
         if self.check_for_standalone_K() == True:
             right = None
             return CommandNode(left, right)
@@ -391,22 +388,22 @@ class Parser:
             return CommandNode(left, right)
 
         self.advance()
-            
-        if self.current_token.type == 'FLAG':
+
+        if self.current_token.type == "FLAG":
 
             check_dc_c, flag_count = self.check_for_dc_complex()
 
             if check_dc_c == True:
                 right = self.data_chain("complex", flag_count)
-            
+
             elif self.check_for_dc_simple() == True:
                 right = self.data_chain("simple")
 
             elif self.check_for_fvp() == True:
                 right = self.flag_value_pair()
-            
+
             elif self.check_for_fc() == True:
-                right = self.flag_chain()    
+                right = self.flag_chain()
 
             else:
                 right = self.flag()
@@ -429,7 +426,7 @@ class Parser:
     def keyword_chain(self):
 
         res = []
-        
+
         while self.current_token.value in self.keywords:
             res.append(KeywordNode(self.current_token.value))
             self.advance()
@@ -454,8 +451,8 @@ class Parser:
 
         res = []
 
-        if mode == 'complex':
-            res.append(self.flag_chain('counter',flag_count))
+        if mode == "complex":
+            res.append(self.flag_chain("counter", flag_count))
         while True:
             if self.check_for_fvp() != True:
                 break
@@ -467,14 +464,14 @@ class Parser:
     def flag_chain(self, mode, flag_count):
 
         res = []
-        if mode == 'counter':
+        if mode == "counter":
             iterations = 0
             while iterations < flag_count:
                 iterations += 1
                 res.append(self.flag())
                 self.advance()
         else:
-            while self.current_token.type == 'FLAG':
+            while self.current_token.type == "FLAG":
                 res.append(self.flag())
                 self.advance()
 
