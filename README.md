@@ -5,6 +5,7 @@
 
 !!!DISCLAIMER!!!
 ---
+
 > ⚠️ **This tool is experimental** ⚠️ : This project currently is in early alpha! The tool is extremly unstable and has a lot of unfixed bugs. **USAGE AT YOUR OWN RISK**!
 
 
@@ -63,7 +64,7 @@ config = {
 }
 
 ```
-After having made the config implement console engine into your script like in this demo script:
+After having made the config implement console engine into your script like in this:
 
 ```python
 import cengine
