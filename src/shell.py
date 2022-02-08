@@ -4,10 +4,19 @@
 # Libs
 ####################
 
-from . import lexer, parser, interpreter
+from . import lexer, parser, interpreter, errors
 
 import colorama
 import getpass
+import viperlogger
+
+####################
+#Logger
+####################
+
+shell_logger = viperlogger.Logger("Shell", './logs/console-engine.log')
+# shell_logger.enable_debugmode('True')
+shell_logger.enable_terminal_output('True')
 
 ####################
 # Shell
@@ -16,26 +25,40 @@ import getpass
 
 class Shell:
     def __init__(self, config, header=None, banner=None) -> None:
+        
+        if config is None:
+            e = errors.MissingConfiguration(' ')
+            shell_logger.critical(e.exception_msg, '')
+            raise e
+
         self.config = config
         self.banner = banner
         self.keywords = list(self.config["keywords"])
 
         self.header = ">> " if header is None else header
 
-    def prompt(self):
+    def prompt(self):  # sourcery skip: extract-method
 
-        user_input = input(self.header)
+        try:
+            user_input = input(self.header)
 
-        lexer_ = lexer.Lexer(user_input)
-        tokens = lexer_.tokenize()
+            lexer_ = lexer.Lexer(user_input)
+            tokens = lexer_.tokenize()
 
-        parser_ = parser.Parser(tokens, self.keywords)
-        ast = parser_.parse()
+            parser_ = parser.Parser(tokens, self.keywords)
+            ast = parser_.parse()
 
-        interpreter_ = interpreter.Interpreter(ast, self.config)
-        inst, count = interpreter_.gen_inst_stack()
+            interpreter_ = interpreter.Interpreter(ast, self.config)
+            inst, count = interpreter_.gen_inst_stack()
 
-        return inst, count
+            if inst:
+                return inst, count
+            print("Unknown Command!")
+            return None, None
+        except Exception as exception:
+            e = errors.InternalError(exception)
+            shell_logger.critical(e.exception_msg, '')
+            raise e
 
     def prompt_secret(self):
 

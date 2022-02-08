@@ -1,6 +1,20 @@
 # Copyright (c) 2021 LightningV1p3r
 
 ####################
+#Libs
+####################
+
+import viperlogger
+from . import errors
+
+####################
+#Logger
+####################
+
+interpreter_logger = viperlogger.Logger("Interpreter", './logs/console-engine.log')
+# interpreter_logger.enable_debugmode('True')
+
+####################
 # Interpreter
 ####################
 
@@ -21,20 +35,30 @@ class Interpreter:
 
     def gen_inst_stack(self):
 
-        self.visit(self.ast)
-        return self.instructions, self.instruction_count
+        try:
+            self.visit(self.ast)
+            return self.instructions, self.instruction_count
+        except Exception as exception:
+            e = errors.InvalidNode(exception)
+            interpreter_logger.error(e.exception_msg, '')
+            return None, None       
 
     def digest_config(self):
 
-        cfg = self.config
-
-        self.keywords = list(cfg["keywords"])
-
+        try:
+            cfg = self.config
+            self.keywords = list(cfg["keywords"])
+            interpreter_logger.debug("loaded config")
     #        self.groups = list(cfg['group_assign'])
+        except Exception as exception:
+            e = errors.InvalidConfig(exception)
+            interpreter_logger.critical(e.exception_msg, '')
+            raise e
 
     def visit(self, node):
         method_name = f"visit_{type(node).__name__}"
         method = getattr(self, method_name)
+        interpreter_logger.debug(f'visiting {type(node).__name__}')
 
         return method(node)
 

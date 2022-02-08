@@ -5,7 +5,7 @@
 
 !!!DISCLAIMER!!!
 ---
-> ⚠️ **This tool is experimental** ⚠️ : This project currently is in early beta! The tool is extremly unstable, has a lot of unfixed bugs and currently even has no error control. **USAGE AT YOU OWN RISK**! We are currently working on getting everything properly working.
+> ⚠️ **This tool is experimental** ⚠️ : This project currently is in early alpha! The tool is extremly unstable and has a lot of unfixed bugs. **USAGE AT YOUR OWN RISK**!
 
 
 Console Engine
@@ -75,6 +75,11 @@ if __name__=='__main__':
     while True:
 
         inst, count = shell_.prompt()
+        
+        #IF None is returned skip iteration
+        if not inst:
+            continue
+
         res = inst[0]
         
         if res['idx'] == 'help_menu':

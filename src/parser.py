@@ -1,6 +1,20 @@
 # Copyright (c) 2021 LightningV1p3r
 
 ####################
+#Libs
+####################
+
+import viperlogger
+from . import errors
+
+####################
+#Loggine
+####################
+
+parser_logger = viperlogger.Logger("Parser", './logs/console-engine.log')
+# parser_logger.enable_debugmode('True')
+
+####################
 # Nodes
 ####################
 
@@ -193,6 +207,7 @@ class ValueNode:
 class Parser:
     def __init__(self, tokens, keywords) -> None:
         self.tokens = tokens
+        parser_logger.debug(f'To parser: {self.tokens}')
         self.keywords = keywords
         self.pos = -1
         self.current_token = None
@@ -202,12 +217,12 @@ class Parser:
 
         self.pos += 1
 
-        if self.pos < len(self.tokens):
-            self.current_token = self.tokens[self.pos]
-        else:
-            self.current_token = None
+        self.current_token = self.tokens[self.pos] if self.pos < len(self.tokens) else None
+        parser_logger.debug(f"advanced to pos {self.pos} with value: '{self.current_token}'")
 
-    def reverse(self, iterations=1):
+    def reverse(self, iterations=1) -> None:
+
+        """Reverses the cursor by one token in the input."""
 
         iter_count = 0
 
@@ -216,14 +231,17 @@ class Parser:
             self.pos -= 1
 
             if self.pos < 0:
-                self.pos += 1
+                e = errors.InvalidCursorPosition(self.pos)
+                parser_logger.error(e.exception_msg, '')
+                raise e
             else:
                 self.current_token = self.tokens[self.pos]
+                parser_logger.debug(f"reversed to pos {self.pos} with value: '{self.current_token}'")
 
             iter_count += 1
 
     ####################
-    # Checker
+    # Checkerchar
     ####################
 
     def check_for_kc(self):
@@ -238,7 +256,8 @@ class Parser:
             self.advance()
 
         self.reverse(iterations)
-
+        log_msg = f'Found KeywordChain @{self.pos}' if keyword_count > 1 else 'No KC found'
+        parser_logger.debug(log_msg)
         return keyword_count > 1
 
     def check_for_fvp(self):
@@ -251,9 +270,11 @@ class Parser:
 
         if self.current_token.type not in ["FLAG", "EOF"]:
             self.reverse()
+            parser_logger.debug(f'found fvp @{self.pos}')
             return True
         else:
             self.reverse()
+            parser_logger.debug("No fvp found")
             return False
 
     def check_for_dc_complex(self):
@@ -278,10 +299,10 @@ class Parser:
 
         flag_chain = flags >= 2 and fvp
         if flag_chain and fvp:
-
+            parser_logger.debug(f'found dc_complex @{self.pos}')
             return True, flags - 1
         else:
-
+            parser_logger.debug("No dc_complex found")
             return False, None
 
     def check_for_dc_simple(self):
@@ -295,9 +316,11 @@ class Parser:
 
         if self.check_for_fvp() == True:
             self.reverse(iterations)
+            parser_logger.debug(f'found dc_simple @{self.pos}')
             return True
         else:
             self.reverse(iterations)
+            parser_logger.debug("No dc_simple found!")
             return False
 
     def check_for_fc(self):
@@ -311,20 +334,25 @@ class Parser:
             self.advance()
 
         self.reverse(iterations)
+        log_msg = f'found fc @{self.pos}' if flag_count > 1 else 'No fc found'
+        parser_logger.debug(log_msg)
         return (True, flag_count) if flag_count > 1 else False
 
-    def check_for_standalone_K(self):
+    def check_for_standalone_K(self):  # sourcery skip: extract-duplicate-method
 
         self.advance()
 
         if self.current_token.type == "EOF":
             self.reverse()
+            parser_logger.debug("found standalone K")
             return True
         else:
             self.reverse()
+            parser_logger.debug("No standalone K found")
             return False
 
     def check_stdaln_KC(self):
+        # sourcery skip: extract-duplicate-method, remove-unnecessary-else, swap-if-else-branches
 
         self.advance()
         iterations = 0 + 1
@@ -338,9 +366,11 @@ class Parser:
                 iterations += 1
 
             self.reverse(iterations)
+            parser_logger.debug("Found standalone KC")
             return True
         else:
             self.reverse(iterations)
+            parser_logger.debug("No standalone KC found")
             return False
 
     ####################
@@ -348,91 +378,119 @@ class Parser:
     ####################
 
     def parse(self):
-        return self.expression()
+        try:
+            return self.expression()
+        except Exception as exception:
+            e = errors.ParsingError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
     def expression(self):
 
         if self.current_token is None:
             return
 
-        res = [self.command()]
+        try:
+            res = [self.command()]
 
-        self.advance()
-
-        while True:
-            if self.current_token is None or self.current_token.type == "EOF":
-                break
-
-            if self.current_token.type == "AMPERSAND":
-                self.advance()
-                if self.current_token.type == "AMPERSAND":
-                    self.advance()
-                res.append(self.command())
             self.advance()
 
-        return ExpressionNode(res)
+            while True:
+                if self.current_token is None or self.current_token.type == "EOF":
+                    break
 
-    def command(self):
+                if self.current_token.type == "AMPERSAND":
+                    self.advance()
+                    if self.current_token.type == "AMPERSAND":
+                        self.advance()
+                    res.append(self.command())
+                self.advance()
 
-        if self.current_token.value in self.keywords:
-            left = self.keyword()
-        else:
-            return None
+            parser_logger.debug(f"Created Expression Node: {res}")
+            return ExpressionNode(res)
 
-        if self.check_for_standalone_K() == True:
-            right = None
-            return CommandNode(left, right)
+        except Exception as exception:
+            e = errors.ExpressionNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
-        if self.check_stdaln_KC() == True:
-            right = None
-            return CommandNode(left, right)
+    def command(self):  # sourcery skip: extract-method
 
-        self.advance()
+        try:
+            if self.current_token.value in self.keywords:
+                left = self.keyword()
+            else:
+                return None
 
-        if self.current_token.type == "FLAG":
+            if self.check_for_standalone_K() == True:
+                right = None
+                return CommandNode(left, right)
 
-            check_dc_c, flag_count = self.check_for_dc_complex()
+            if self.check_stdaln_KC() == True:
+                right = None
+                return CommandNode(left, right)
 
-            if check_dc_c == True:
-                right = self.data_chain("complex", flag_count)
+            self.advance()
 
-            elif self.check_for_dc_simple() == True:
-                right = self.data_chain("simple")
+            if self.current_token.type == "FLAG":
 
-            elif self.check_for_fvp() == True:
-                right = self.flag_value_pair()
+                check_dc_c, flag_count = self.check_for_dc_complex()
 
-            elif self.check_for_fc() == True:
-                right = self.flag_chain()
+                if check_dc_c == True:
+                    right = self.data_chain("complex", flag_count)
+
+                elif self.check_for_dc_simple() == True:
+                    right = self.data_chain("simple")
+
+                elif self.check_for_fvp() == True:
+                    right = self.flag_value_pair()
+
+                elif self.check_for_fc() == True:
+                    right = self.flag_chain()
+
+                else:
+                    right = self.flag()
 
             else:
-                right = self.flag()
+                right = self.value()
 
-        else:
-            right = self.value()
+            return CommandNode(left, right)
 
-        return CommandNode(left, right)
-
+        except Exception as exception:
+            e = errors.CommandNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
+            
     def keyword(self):
 
-        if self.current_token.value not in self.keywords:
-            return None
+        try:
+            if self.current_token.value not in self.keywords:
+                return None
 
-        if self.check_for_kc() == True:
-            return self.keyword_chain()
-        else:
-            return KeywordNode(self.current_token.value)
+            if self.check_for_kc() == True:
+                return self.keyword_chain()
+            else:
+                return KeywordNode(self.current_token.value)
+        except Exception as exception:
+            e = errors.KeywordNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
     def keyword_chain(self):
 
-        res = []
+        try:
+            res = []
 
-        while self.current_token.value in self.keywords:
-            res.append(KeywordNode(self.current_token.value))
-            self.advance()
+            while self.current_token.value in self.keywords:
+                res.append(KeywordNode(self.current_token.value))
+                self.advance()
 
-        self.reverse()
-        return KeywordChainNode(res)
+            self.reverse()
+            return KeywordChainNode(res)
+        except Exception as exception:
+            e = errors.KeywordChainNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
     def flag(self):
         return FlagNode(self.current_token.value)
@@ -442,37 +500,52 @@ class Parser:
 
     def flag_value_pair(self):
 
-        flag = self.flag()
-        self.advance()
-        value = self.value()
-        return FlagValueNode(flag, value)
+        try:
+            flag = self.flag()
+            self.advance()
+            value = self.value()
+            return FlagValueNode(flag, value)
+        except Exception as exception:
+            e = errors.FlagValuePairNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
     def data_chain(self, mode, flag_count=None):
 
-        res = []
+        try:
+            res = []
 
-        if mode == "complex":
-            res.append(self.flag_chain("counter", flag_count))
-        while True:
-            if self.check_for_fvp() != True:
-                break
-            res.append(self.flag_value_pair())
-            self.advance()
+            if mode == "complex":
+                res.append(self.flag_chain("counter", flag_count))
+            while True:
+                if self.check_for_fvp() != True:
+                    break
+                res.append(self.flag_value_pair())
+                self.advance()
 
-        return DataChainNode(res)
+            return DataChainNode(res)
+        except Exception as exception:
+            e = errors.DataChainNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
 
     def flag_chain(self, mode, flag_count):
 
-        res = []
-        if mode == "counter":
-            iterations = 0
-            while iterations < flag_count:
-                iterations += 1
-                res.append(self.flag())
-                self.advance()
-        else:
-            while self.current_token.type == "FLAG":
-                res.append(self.flag())
-                self.advance()
+        try:
+            res = []
+            if mode == "counter":
+                iterations = 0
+                while iterations < flag_count:
+                    iterations += 1
+                    res.append(self.flag())
+                    self.advance()
+            else:
+                while self.current_token.type == "FLAG":
+                    res.append(self.flag())
+                    self.advance()
 
-        return FlagChainNode(res)
+            return FlagChainNode(res)
+        except Exception as exception:
+            e = errors.FlagChainNodeCreationError(exception)
+            parser_logger.critical(e.detailed, '')
+            raise e
