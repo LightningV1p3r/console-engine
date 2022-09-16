@@ -6,13 +6,7 @@
 !!!DISCLAIMER!!!
 ---
 
-> ⚠️ **This tool is experimental** ⚠️ : This project currently is in early alpha! The tool is extremly unstable and has a lot of unfixed bugs. **USAGE AT YOUR OWN RISK**!
-
-
-Console Engine
----
-
-This is a simple to integrate Shell (_Metasploit like_)
+> ⚠️ **This tool is experimental** ⚠️ : This project was a personal experiment, to learn how a parser works, by building one myself. **Usage is not recommended**
 
 Installation
 ---
